@@ -17,7 +17,7 @@ export function SplashScreen({ onFinish }: { onFinish: () => void }) {
         className="mt-[16px] text-[32px] text-center text-white"
         style={{ fontFamily: "'Alatsi', sans-serif" }}
       >
-        Cerva
+        Cervicoapp
       </p>
     </div>
   );

@@ -65,7 +65,7 @@ export default function IPhone1415Pro() {
       <HomeBarPro />
       <StatusBarPro />
       <Group />
-      <p className="-translate-x-1/2 absolute font-['Alatsi:Regular',sans-serif] h-[38px] leading-[normal] left-[calc(50%+0.5px)] not-italic text-[32px] text-center text-white top-[469px] w-[112px] whitespace-pre-wrap">Cerva</p>
+      <p className="-translate-x-1/2 absolute font-['Alatsi:Regular',sans-serif] h-[38px] leading-[normal] left-[calc(50%+0.5px)] not-italic text-[32px] text-center text-white top-[469px] w-[112px] whitespace-pre-wrap">Cervicoapp</p>
     </div>
   );
 }

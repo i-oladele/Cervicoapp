@@ -101,7 +101,7 @@ function Frame2() {
       <p className="-translate-x-1/2 absolute font-['Instrument_Sans:SemiBold',sans-serif] font-semibold left-[84px] text-[32px] text-black top-[5px] tracking-[-1.6px]" style={{ fontVariationSettings: "'wdth' 100" }}>
         Welcome to
       </p>
-      <p className="-translate-x-1/2 absolute font-['Alatsi:Regular',sans-serif] h-[38px] left-[calc(50%+84px)] not-italic text-[#008080] text-[36px] top-0 w-[112px] whitespace-pre-wrap">Cerva</p>
+      <p className="-translate-x-1/2 absolute font-['Alatsi:Regular',sans-serif] h-[38px] left-[calc(50%+84px)] not-italic text-[#008080] text-[36px] top-0 w-[112px] whitespace-pre-wrap">Cervicoapp</p>
     </div>
   );
 }
