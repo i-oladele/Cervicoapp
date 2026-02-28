@@ -10,9 +10,10 @@ interface DatePickerProps {
   value: string;
   onChange: (dateStr: string) => void;
   placeholder?: string;
+  disabled?: { before?: Date; after?: Date; };
 }
 
-export function DatePicker({ value, onChange, placeholder }: DatePickerProps) {
+export function DatePicker({ value, onChange, placeholder, disabled }: DatePickerProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
@@ -70,7 +71,7 @@ export function DatePicker({ value, onChange, placeholder }: DatePickerProps) {
             selected={selected}
             onSelect={handleSelect}
             defaultMonth={selected || new Date()}
-            disabled={{ before: new Date() }}
+            disabled={disabled ? disabled : { before: new Date() }}
             showOutsideDays
             classNames={{
               months: "flex flex-col",
