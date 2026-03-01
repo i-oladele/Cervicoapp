@@ -166,13 +166,37 @@ app.post('/api/screening', (req, res) => {
       center,
       date,
       reminder,
-      savedAt: new Date().toISOString()
+      savedAt: new Date().toISOString(),
+      completed: false, // Track if screening was completed
+      completedAt: null
     });
     
     res.json({ success: true, message: 'Screening data saved successfully' });
   } catch (error) {
     console.error('Error saving screening:', error);
     res.status(500).json({ success: false, error: 'Failed to save screening' });
+  }
+});
+
+// Update screening completion status
+app.post('/api/screening/completed', (req, res) => {
+  try {
+    const { phone, completed } = req.body;
+    
+    console.log('Updating screening completion for:', phone, 'Completed:', completed);
+    
+    // Get existing screening data
+    const screening = screeningData.get(phone);
+    if (screening) {
+      screening.completed = completed;
+      screening.completedAt = completed ? new Date().toISOString() : null;
+      screeningData.set(phone, screening);
+    }
+    
+    res.json({ success: true, message: 'Screening completion updated successfully' });
+  } catch (error) {
+    console.error('Error updating screening completion:', error);
+    res.status(500).json({ success: false, error: 'Failed to update screening completion' });
   }
 });
 
@@ -287,7 +311,7 @@ async function checkAndSendReminders() {
       else if (!reminder.reminderMorningSent && now >= morningOf && now < new Date(morningOf.getTime() + 2 * 60 * 60 * 1000)) {
         await sendReminderNotification(subscription, phone, 
           'Screening Today!', 
-          `Your cervical cancer screening is scheduled for today at ${screeningDate.toLocaleTimeString()}. Please arrive on time.`
+          `Your cervical cancer screening is scheduled for today at ${screeningDate.toLocaleTimeString()}. Please arrive on time. Click here to confirm when you've completed your screening.`
         );
         
         reminder.reminderMorningSent = true;
@@ -297,6 +321,24 @@ async function checkAndSendReminders() {
         if (now > screeningDate) {
           screeningReminders.delete(phone);
           console.log(`Removed expired reminder for ${phone}`);
+        }
+      }
+      
+      // Check for screening completion reminder (if not completed and it's screening day)
+      const screening = screeningData.get(phone);
+      if (screening && !screening.completed && screening.date === now.toISOString().split('T')[0]) {
+        const screeningHour = parseInt(screeningDate.toLocaleTimeString().split(':')[0]);
+        const currentHour = now.getHours();
+        
+        // Send completion reminder 2 hours after scheduled time
+        if (currentHour >= screeningHour + 2 && !reminder.completionReminderSent) {
+          await sendReminderNotification(subscription, phone,
+            'Screening Completion Reminder',
+            'Did you complete your cervical cancer screening today? Please click Yes to confirm your attendance.'
+          );
+          
+          reminder.completionReminderSent = true;
+          console.log(`Sent completion reminder to ${phone}`);
         }
       }
     } catch (error) {
@@ -316,9 +358,21 @@ async function sendReminderNotification(subscription, phone, title, body) {
       vibrate: [100, 50, 100],
       data: {
         type: 'screening_reminder',
-        phone: phone
+        phone: phone,
+        confirm_completion: title.includes('Completion Reminder')
       },
-      actions: [
+      actions: title.includes('Completion Reminder') ? [
+        {
+          action: 'confirm_completion',
+          title: 'Confirm Screening',
+          icon: '/icon-96x96.png'
+        },
+        {
+          action: 'open',
+          title: 'Open App',
+          icon: '/icon-96x96.png'
+        }
+      ] : [
         {
           action: 'open',
           title: 'Open App',

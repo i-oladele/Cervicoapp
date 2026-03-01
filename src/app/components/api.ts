@@ -70,6 +70,13 @@ export async function getScreening(phone: string) {
   return localRequest(`/screening/${encodeURIComponent(phone)}`);
 }
 
+export async function updateScreeningCompletion(phone: string, completed: boolean) {
+  return localRequest("/screening/completed", {
+    method: "POST",
+    body: JSON.stringify({ phone, completed }),
+  });
+}
+
 // Assessment
 export async function saveAssessment(phone: string, type: "baseline" | "endline", score: number, total: number, answers: number[]) {
   return request("/assessment", {

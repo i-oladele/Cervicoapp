@@ -80,10 +80,15 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  if (event.action === 'explore') {
+  if (event.action === 'open') {
     // Open the app to specific page
     event.waitUntil(
-      clients.openWindow('/screening')
+      clients.openWindow('/')
+    );
+  } else if (event.action === 'confirm_completion') {
+    // Open app with completion confirmation
+    event.waitUntil(
+      clients.openWindow('/?confirm_completion=true')
     );
   } else {
     // Default behavior - open app

@@ -340,8 +340,15 @@ export function AssessmentScreen({ onNavigate }: AssessmentScreenProps) {
   ];
 
   const allSections = [sectionAQuestions, sectionBQuestions, sectionCQuestions, sectionDQuestions, sectionEQuestions, sectionFQuestions];
+  
+  // Baseline assessment includes all sections (A-F)
+  const baselineSections = [sectionAQuestions, sectionBQuestions, sectionCQuestions, sectionDQuestions, sectionEQuestions, sectionFQuestions];
+  
+  // Endline assessment excludes Section A and Section F (only B-E)
+  const endlineSections = [sectionBQuestions, sectionCQuestions, sectionDQuestions, sectionEQuestions];
 
   const startAssessment = (type: "baseline" | "endline") => {
+    console.log('Starting assessment:', type);
     setActiveAssessment(type);
     setCurrentSection(0);
     setCurrentQuestion(0);
@@ -354,7 +361,12 @@ export function AssessmentScreen({ onNavigate }: AssessmentScreenProps) {
   };
 
   const getCurrentQuestions = () => {
-    return allSections[currentSection] || [];
+    const sections = activeAssessment === "baseline" ? baselineSections : endlineSections;
+    console.log('Active Assessment:', activeAssessment);
+    console.log('Current Section:', currentSection);
+    console.log('Sections array:', sections);
+    console.log('Current Questions:', sections[currentSection]);
+    return sections[currentSection] || [];
   };
 
   const getCurrentQuestion = () => {
@@ -386,7 +398,8 @@ export function AssessmentScreen({ onNavigate }: AssessmentScreenProps) {
       setSelectedAnswer(null);
     } else {
       // Move to next section or complete assessment
-      if (currentSection < allSections.length - 1) {
+      const sections = activeAssessment === "baseline" ? baselineSections : endlineSections;
+      if (currentSection < sections.length - 1) {
         setCurrentSection(currentSection + 1);
         setCurrentQuestion(0);
         setSelectedAnswer(null);
@@ -416,8 +429,15 @@ export function AssessmentScreen({ onNavigate }: AssessmentScreenProps) {
     }
     setSaving(true);
     try {
-      // Calculate total scorable questions from Sections B, C, D, and F
-      const totalKnowledgeQuestions = sectionBQuestions.length + sectionCQuestions.length + sectionDQuestions.length + sectionFQuestions.length;
+      // Calculate total scorable questions based on assessment type
+      let totalKnowledgeQuestions;
+      if (activeAssessment === "baseline") {
+        // Baseline includes Sections B, C, D, and F (Section A and E are not scored)
+        totalKnowledgeQuestions = sectionBQuestions.length + sectionCQuestions.length + sectionDQuestions.length + sectionFQuestions.length;
+      } else {
+        // Endline includes Sections B, C, and D (Section E is not scored)
+        totalKnowledgeQuestions = sectionBQuestions.length + sectionCQuestions.length + sectionDQuestions.length;
+      }
       const res = await saveAssessment(user.phone, activeAssessment as "baseline" | "endline", score, totalKnowledgeQuestions, answers);
       if (res.progress) {
         setProgress({ ...progress, ...res.progress });
@@ -438,21 +458,38 @@ export function AssessmentScreen({ onNavigate }: AssessmentScreenProps) {
     const currentQ = getCurrentQuestion();
     const currentQuestions = getCurrentQuestions();
     let sectionTitle = "";
+    const sections = activeAssessment === "baseline" ? baselineSections : endlineSections;
     
-    if (currentSection === 0) {
-      sectionTitle = t("sectionA.title");
-    } else if (currentSection === 1) {
-      sectionTitle = t("sectionB.title");
-    } else if (currentSection === 2) {
-      sectionTitle = t("sectionC.title");
-    } else if (currentSection === 3) {
-      sectionTitle = t("sectionD.title");
-    } else if (currentSection === 4) {
-      sectionTitle = t("sectionE.title");
-    } else if (currentSection === 5) {
-      sectionTitle = t("sectionF.title");
+    if (activeAssessment === "baseline") {
+      // Baseline includes all sections (A-F)
+      if (currentSection === 0) {
+        sectionTitle = t("sectionA.title");
+      } else if (currentSection === 1) {
+        sectionTitle = t("sectionB.title");
+      } else if (currentSection === 2) {
+        sectionTitle = t("sectionC.title");
+      } else if (currentSection === 3) {
+        sectionTitle = t("sectionD.title");
+      } else if (currentSection === 4) {
+        sectionTitle = t("sectionE.title");
+      } else if (currentSection === 5) {
+        sectionTitle = t("sectionF.title");
+      } else {
+        sectionTitle = t("assessment.baseline") + " " + t("assessment.assessmentLabel");
+      }
     } else {
-      sectionTitle = (activeAssessment === "baseline" ? t("assessment.baseline") : t("assessment.endline")) + " " + t("assessment.assessmentLabel");
+      // Endline includes only sections B-E (so currentSection 0 = Section B, etc.)
+      if (currentSection === 0) {
+        sectionTitle = t("sectionB.title");
+      } else if (currentSection === 1) {
+        sectionTitle = t("sectionC.title");
+      } else if (currentSection === 2) {
+        sectionTitle = t("sectionD.title");
+      } else if (currentSection === 3) {
+        sectionTitle = t("sectionE.title");
+      } else {
+        sectionTitle = t("assessment.endline") + " " + t("assessment.assessmentLabel");
+      }
     }
     
     return (
@@ -667,14 +704,17 @@ export function AssessmentScreen({ onNavigate }: AssessmentScreenProps) {
             className="text-[18px] text-black text-center mt-[12px]"
             style={fontInstrument}
           >
-            Well done! You have completed the baseline assessment, you can continue to learn more about cervical cancer
+            {activeAssessment === "endline" 
+              ? "Well done! You have completed the endline assessment. If you haven't, please make sure you take your cervical cancer screening as soon as you can."
+              : "Well done! You have completed the baseline assessment, you can continue to learn more about cervical cancer"
+            }
           </p>
           <button
-            onClick={() => onNavigate("library")}
+            onClick={() => onNavigate("home")}
             className="w-full bg-[#008080] p-[16px] rounded-[8px] border-none cursor-pointer mt-[24px]"
           >
             <p className="text-[18px] text-center text-[#8ffc86] tracking-[-0.9px]" style={{ ...fontInstrument, fontWeight: 600 }}>
-              Continue to Library
+              {activeAssessment === "endline" ? "Continue to Home" : "Continue to Library"}
             </p>
           </button>
         </div>

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import img3DiconsFileTextDynamicColor from "../../assets/3b2c1ffa27c5ea87c5bf8baa40559c17cefa558d.png";
 import img3DiconsNotebookDynamicColor from "figma:asset/daa3b4e3a939e95bb002892d86e013e60c242b18.png";
 import img3DiconsCopyDynamicColor from "figma:asset/15c0a9c33d08ea2f8ec0afb10ad1d88796ddb2e5.png";
@@ -10,6 +11,8 @@ import { useLanguage } from "./LanguageContext";
 import { useUser } from "./UserContext";
 import { VideoCard } from "./VideoCard";
 import { NotificationCenter } from "./NotificationCenter";
+import { getScreening } from "./api";
+import { ScreeningCompletionModal } from "./ScreeningCompletionModal";
 import FigmaCheckCircleHome from "../../imports/CheckCircle-10-491";
 
 const fontInstrument = { fontFamily: "'Instrument Sans', sans-serif" };
@@ -21,6 +24,39 @@ interface HomeScreenProps {
 export function HomeScreen({ onNavigate }: HomeScreenProps) {
   const { t } = useLanguage();
   const { user, progress } = useUser();
+  const [screeningData, setScreeningData] = useState<any>(null);
+  const [screeningCompleted, setScreeningCompleted] = useState(false);
+  const [hasCheckedScreening, setHasCheckedScreening] = useState(false);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+
+  // Fetch screening data on component mount
+  useEffect(() => {
+    const fetchScreeningData = async () => {
+      if (user) {
+        try {
+          const screening = await getScreening(user.phone);
+          setScreeningData(screening);
+          setHasCheckedScreening(false); // Default to No
+          setScreeningCompleted(screening?.completed || false);
+        } catch (error) {
+          console.log("No screening data found:", error);
+          setScreeningData(null);
+        }
+      }
+    };
+
+    fetchScreeningData();
+  }, [user]);
+
+  // Check for completion confirmation in URL params
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('confirm_completion') === 'true' && screeningData && !screeningData.completed) {
+      setShowCompletionModal(true);
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [screeningData]);
 
   // Calculate progress percentage
   const completedCount = [progress.baselineCompleted, progress.modulesCompleted, progress.endlineCompleted].filter(Boolean).length;
@@ -146,24 +182,61 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
 
         {/* Screening CTA */}
         <div className="px-[24px] mt-[16px]">
-          <div className="bg-[#f6f6f6] rounded-[8px] p-[16px] flex gap-px items-center">
-            <div className="flex flex-col gap-[8px] w-[216px]">
-              <p className="text-[16px] text-black tracking-[-0.48px]" style={{ ...fontInstrument, fontWeight: 500 }}>
-                {t("home.noScreening")}
-              </p>
-              <button
-                onClick={() => onNavigate("screening")}
-                className="bg-[#9fe29a] p-[8px] rounded-[8px] border-none cursor-pointer w-fit"
-              >
-                <p className="text-[15px] text-black text-center w-[84px]" style={{ ...fontInstrument, fontWeight: 600 }}>
-                  {t("home.bookNow")}
+          {screeningData ? (
+            // User has booked screening - show Yes/No options
+            <div className="bg-[#f6f6f6] rounded-[8px] p-[16px] flex gap-px items-center">
+              <div className="flex flex-col gap-[8px] w-[216px]">
+                <p className="text-[16px] text-black tracking-[-0.48px]" style={{ ...fontInstrument, fontWeight: 500 }}>
+                  Have you done your cervical cancer screening?
                 </p>
-              </button>
+                <div className="flex gap-[8px]">
+                  <button
+                    onClick={() => setHasCheckedScreening(true)}
+                    className={`p-[8px] rounded-[8px] border-none cursor-pointer flex-1 ${
+                      hasCheckedScreening ? "bg-[#008080] text-white" : "bg-white text-black border border-gray-300"
+                    }`}
+                  >
+                    <p className="text-[15px] text-center" style={{ ...fontInstrument, fontWeight: 600 }}>
+                      Yes
+                    </p>
+                  </button>
+                  <button
+                    onClick={() => setHasCheckedScreening(false)}
+                    className={`p-[8px] rounded-[8px] border-none cursor-pointer flex-1 ${
+                      !hasCheckedScreening ? "bg-[#008080] text-white" : "bg-white text-black border border-gray-300"
+                    }`}
+                  >
+                    <p className="text-[15px] text-center" style={{ ...fontInstrument, fontWeight: 600 }}>
+                      No
+                    </p>
+                  </button>
+                </div>
+              </div>
+              <div className="relative shrink-0 size-[102px]">
+                <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={imgIstockphoto} />
+              </div>
             </div>
-            <div className="relative shrink-0 size-[102px]">
-              <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={imgIstockphoto} />
+          ) : (
+            // User has not booked screening - show original CTA
+            <div className="bg-[#f6f6f6] rounded-[8px] p-[16px] flex gap-px items-center">
+              <div className="flex flex-col gap-[8px] w-[216px]">
+                <p className="text-[16px] text-black tracking-[-0.48px]" style={{ ...fontInstrument, fontWeight: 500 }}>
+                  {t("home.noScreening")}
+                </p>
+                <button
+                  onClick={() => onNavigate("screening")}
+                  className="bg-[#9fe29a] p-[8px] rounded-[8px] border-none cursor-pointer w-fit"
+                >
+                  <p className="text-[15px] text-black text-center w-[84px]" style={{ ...fontInstrument, fontWeight: 600 }}>
+                    {t("home.bookNow")}
+                  </p>
+                </button>
+              </div>
+              <div className="relative shrink-0 size-[102px]">
+                <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={imgIstockphoto} />
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Learn Section */}
@@ -194,6 +267,12 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
       </div>
 
       <BottomNav active="home" onNavigate={onNavigate} />
+      
+      {/* Screening Completion Modal */}
+      <ScreeningCompletionModal 
+        isOpen={showCompletionModal} 
+        onClose={() => setShowCompletionModal(false)} 
+      />
     </div>
   );
 }
