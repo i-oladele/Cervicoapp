@@ -77,7 +77,7 @@ export async function saveScreening(phone: string, age: number, center: string, 
 }
 
 export async function getScreeningData(phone: string) {
-  return smartRequest(`/screening/${phone}`);
+  return smartRequest(`/screening/${encodeURIComponent(phone)}`);
 }
 
 export async function updateScreeningCompletion(phone: string, completed: boolean) {
