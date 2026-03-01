@@ -2,6 +2,7 @@ import { projectId, publicAnonKey } from "../../../utils/supabase/info";
 
 const BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-bcdc6876`;
 const LOCAL_BASE_URL = "http://localhost:3001/api";
+const USE_LOCAL_API = process.env.NODE_ENV === 'development';
 
 const headers = {
   "Content-Type": "application/json",
@@ -38,6 +39,15 @@ async function localRequest(path: string, options: RequestInit = {}) {
   return data;
 }
 
+// Smart request function that uses local API in development, Supabase in production
+async function smartRequest(path: string, options: RequestInit = {}) {
+  if (USE_LOCAL_API) {
+    return localRequest(path, options);
+  } else {
+    return request(path, options);
+  }
+}
+
 // Auth
 export async function registerUser(phone: string, city: string, pin: string, language: string) {
   return request("/auth/register", {
@@ -60,18 +70,18 @@ export async function getUserData(phone: string) {
 
 // Screening
 export async function saveScreening(phone: string, age: number, center: string, date: string, reminder: boolean) {
-  return request("/screening", {
+  return smartRequest("/screening", {
     method: "POST",
     body: JSON.stringify({ phone, age, center, date, reminder }),
   });
 }
 
 export async function getScreeningData(phone: string) {
-  return request(`/screening/${phone}`);
+  return smartRequest(`/screening/${phone}`);
 }
 
 export async function updateScreeningCompletion(phone: string, completed: boolean) {
-  return request("/screening/completed", {
+  return smartRequest("/screening/completed", {
     method: "POST",
     body: JSON.stringify({ phone, completed }),
   });

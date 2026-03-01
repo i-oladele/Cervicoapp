@@ -61,6 +61,26 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
     fetchData();
   }, [user]);
 
+  // Also fetch data when component mounts
+  useEffect(() => {
+    if (user) {
+      const fetchData = async () => {
+        try {
+          const screening = await getScreeningData(user.phone);
+          if (screening) {
+            setAge(screening.age || "");
+            setCenter(screening.center || "");
+            setDate(screening.date || "");
+            setReminder(screening.reminder !== false);
+          }
+        } catch (err) {
+          console.log("Error fetching screening data:", err);
+        }
+      };
+      fetchData();
+    }
+  }, []);
+
   const handleSave = async () => {
     if (!user) {
       toast.error("Please log in first");
