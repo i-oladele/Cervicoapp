@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { getUserNotifications, markNotificationRead } from "./api";
 import { useUser } from "./UserContext";
 
 export interface Notification {
@@ -31,27 +30,17 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const { user } = useUser();
 
   const refreshNotifications = async () => {
-    if (user) {
-      try {
-        const userNotifications = await getUserNotifications(user.phone);
-        setNotifications(userNotifications || []);
-      } catch (err) {
-        console.error("Failed to fetch notifications:", err);
-      }
-    }
+    // Notifications are now handled locally since backend functions were removed
+    // This function can be used for future notification implementations
   };
 
   const markAsRead = async (id: string) => {
-    try {
-      await markNotificationRead(id);
-      setNotifications(prev => 
-        prev.map(notif => 
-          notif.id === id ? { ...notif, read: true } : notif
-        )
-      );
-    } catch (err) {
-      console.error("Failed to mark notification as read:", err);
-    }
+    // Mark notification as read locally since backend function was removed
+    setNotifications(prev => 
+      prev.map(notif => 
+        notif.id === id ? { ...notif, read: true } : notif
+      )
+    );
   };
 
   const addNotification = (notification: Omit<Notification, "id" | "createdAt" | "read">) => {
