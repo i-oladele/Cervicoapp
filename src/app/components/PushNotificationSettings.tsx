@@ -103,7 +103,7 @@ export function PushNotificationSettings() {
           onClick={handleToggle}
           disabled={isLoading}
           className={`relative w-12 h-6 rounded-full transition-colors ${
-            isEnabled ? "bg-blue-600" : "bg-gray-300"
+            isEnabled ? "bg-green-500" : "bg-gray-300"
           } ${isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
         >
           <div

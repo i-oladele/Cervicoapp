@@ -5,7 +5,7 @@ import { useLanguage } from "./LanguageContext";
 import { useUser } from "./UserContext";
 import { useNotifications } from "./NotificationContext";
 import { usePushNotifications } from "./PushNotificationManager";
-import { saveScreening, getScreening, getAssessment, createScreeningReminder } from "./api";
+import { saveScreening, getScreeningData, getAssessment } from "./api";
 import { DatePicker } from "./DatePicker";
 import { BackgroundLogo } from "./BackgroundLogo";
 import { BottomNav } from "./BottomNav";
@@ -33,7 +33,7 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
       if (user) {
         try {
           // Fetch saved screening data first
-          const screening = await getScreening(user.phone);
+          const screening = await getScreeningData(user.phone);
           if (screening) {
             setAge(screening.age || "");
             setCenter(screening.center || "");
@@ -69,22 +69,15 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
     setSaving(true);
     try {
       // Save screening data
-      await saveScreening(user.phone, { age, center, date, reminder });
+      await saveScreening(user.phone, parseInt(age), center, date, reminder);
       
       // Create screening reminders if reminder is enabled and date is set
       if (reminder && date) {
-        try {
-          await createScreeningReminder(user.phone, date);
-          
-          // Add immediate notification for user
-          addNotification({
-            message: `Screening appointment scheduled for ${new Date(date).toLocaleDateString()} at ${center}. You'll receive reminders before your appointment.`,
-            type: "screening_reminder"
-          });
-        } catch (reminderErr) {
-          console.error("Failed to create reminders:", reminderErr);
-          // Don't fail the save if reminders fail
-        }
+        // Add immediate notification for user
+        addNotification({
+          message: `Screening appointment scheduled for ${new Date(date).toLocaleDateString()} at ${center}. You'll receive reminders before your appointment.`,
+          type: "screening_reminder"
+        });
       }
       
       toast.success(t("screening.successTitle"), {
@@ -165,7 +158,7 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
             <button
               onClick={() => setReminder(!reminder)}
               className={`w-[48px] h-[28px] rounded-full border-none cursor-pointer transition-colors relative ${
-                reminder ? "bg-[#008080]" : "bg-[#c6c6c6]"
+                reminder ? "bg-[#22c55e]" : "bg-[#c6c6c6]"
               }`}
             >
               <div
