@@ -1,4 +1,4 @@
-import { projectId, publicAnonKey } from "/utils/supabase/info";
+import { projectId, publicAnonKey } from "../../../utils/supabase/info";
 
 const BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-bcdc6876`;
 const LOCAL_BASE_URL = "http://localhost:3001/api";

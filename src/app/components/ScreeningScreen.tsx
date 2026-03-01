@@ -158,7 +158,7 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
             <button
               onClick={() => setReminder(!reminder)}
               className={`w-[48px] h-[28px] rounded-full border-none cursor-pointer transition-colors relative ${
-                reminder ? "bg-[#22c55e]" : "bg-[#c6c6c6]"
+                reminder ? "bg-[#008080]" : "bg-[#c6c6c6]"
               }`}
             >
               <div
