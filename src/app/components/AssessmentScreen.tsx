@@ -667,14 +667,14 @@ export function AssessmentScreen({ onNavigate }: AssessmentScreenProps) {
             className="text-[18px] text-black text-center mt-[12px]"
             style={fontInstrument}
           >
-            {t("assessment.scored")} {score} {t("assessment.outOf")} {questions.length}
+            Well done! You have completed the baseline assessment, you can continue to learn more about cervical cancer
           </p>
           <button
-            onClick={saveAndNavigate}
+            onClick={() => onNavigate("library")}
             className="w-full bg-[#008080] p-[16px] rounded-[8px] border-none cursor-pointer mt-[24px]"
           >
             <p className="text-[18px] text-center text-[#8ffc86] tracking-[-0.9px]" style={{ ...fontInstrument, fontWeight: 600 }}>
-              {saving ? t("assessment.saving") : t("assessment.done")}
+              Continue to Library
             </p>
           </button>
         </div>

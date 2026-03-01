@@ -26,31 +26,75 @@ export function LibraryScreen({ onNavigate }: LibraryScreenProps) {
 
   const modules = [
     {
-      title: t("library.m1.title"),
+      title: "Unit 1: Introduction to Cervical Cancer",
       content: [
-        { heading: t("library.m1.h1"), text: t("library.m1.t1") },
-        { heading: t("library.m1.h2"), text: t("library.m1.t2") },
-        { heading: t("library.m1.h3"), text: t("library.m1.t3") },
-        { heading: t("library.m1.h4"), text: t("library.m1.t4") },
-        { heading: t("library.m1.h5"), text: t("library.m1.t5") },
-        { heading: t("library.m1.h6"), text: t("library.m1.t6") },
+        { heading: "Definition", text: "Cervical cancer is a disease that occurs when abnormal cells grow uncontrollably in the cervix and form a tumor." },
+        { heading: "Basic Anatomy of the Cervix", text: "The cervix is the lower, narrow part of the uterus (womb).\n\nIt connects the uterus to the vagina and plays an important role in:\n\n• Menstruation\n• Pregnancy\n• Childbirth" },
+        { heading: "What is Cervical Cancer?", text: "Cervical cancer develops when cells in the cervix change (become abnormal) and continue growing without control. These changes usually happen slowly over many years." },
+        { heading: "Why is Cervical Cancer a Public Health Problem (Especially in Nigeria)?", text: "• It is one of the most common cancers affecting women.\n• Many women are diagnosed at late stages.\n• Screening services are not widely accessed.\n• Awareness is still low in many communities.\n• Early detection can prevent most deaths." },
+        { heading: "", text: "" }
       ],
     },
     {
-      title: t("library.m2.title"),
+      title: "Unit 2: Causes and Risk Factors",
       content: [
-        { heading: t("library.m2.h1"), text: t("library.m2.t1") },
-        { heading: t("library.m2.h2"), text: t("library.m2.t2") },
-        { heading: t("library.m2.h3"), text: t("library.m2.t3") },
-        { heading: t("library.m2.h4"), text: t("library.m2.t4") },
+        { heading: "Main Cause", text: "Cervical cancer is mainly caused by persistent infection with Human Papillomavirus (HPV)." },
+        { heading: "Key Risk Factors", text: "• Persistent HPV Infection\n  - HPV is a common virus spread through sexual contact.\n  - Long-term infection can lead to cervical cancer.\n\n• Early Sexual Debut\n  - Starting sexual activity at a very young age increases risk.\n\n• Multiple Sexual Partners\n  - Increases exposure to HPV.\n\n• Smoking\n  - Weakens the immune system and increases cancer risk.\n\n• Immunosuppression (e.g., HIV)\n  - Reduced immunity makes it harder to fight HPV infection.\n\n• Lack of Screening\n  - Without regular screening, abnormal changes go undetected." },
+        { heading: "Myth vs Fact", text: "Myth: Cervical cancer is caused by witchcraft or spiritual attacks.\nFact: Cervical cancer is caused mainly by persistent HPV infection.\n\nMyth: Only women with many partners get cervical cancer.\nFact: Any sexually active woman can be at risk.\n\nMyth: If I feel fine, I cannot have cervical cancer.\nFact: Early stages usually have no symptoms." }
       ],
     },
     {
-      title: t("library.m3.title"),
+      title: "Unit 3: Signs and Symptoms",
       content: [
-        { heading: t("library.m3.h1"), text: t("library.m3.t1") },
-        { heading: t("library.m3.h2"), text: t("library.m3.t2") },
-        { heading: t("library.m3.h3"), text: t("library.m3.t3") },
+        { heading: "Important Note", text: "In early stages, cervical cancer usually has no symptoms. This is why screening is important." },
+        { heading: "Possible Symptoms (Later Stages)", text: "• Abnormal vaginal bleeding\n  - Between periods\n  - After menopause\n  - After sexual intercourse\n\n• Post-coital bleeding\n  - Bleeding after sexual activity.\n\n• Foul-smelling vaginal discharge\n\n• Pelvic pain" },
+        { heading: "Key Message", text: "Symptoms often appear late.\nDo not wait for symptoms before going for screening." }
+      ],
+    },
+    {
+      title: "Unit 4: Prevention Strategies",
+      content: [
+        { heading: "Prevention Overview", text: "Cervical cancer is largely preventable." },
+        { heading: "1. HPV Vaccination", text: "• Protects against the main types of HPV that cause cervical cancer.\n• Most effective before sexual activity begins.\n• Available in many health facilities and immunization programs." },
+        { heading: "2. Regular Screening", text: "• Detects early cell changes before they become cancer.\n• Can prevent cancer completely if treated early." },
+        { heading: "3. Safe Sexual Practices", text: "• Limiting number of sexual partners.\n• Using protection (condoms reduce risk but do not eliminate it)." },
+        { heading: "4. Smoking Cessation", text: "• Avoid tobacco use." }
+      ],
+    },
+    {
+      title: "Unit 5: Screening Methods",
+      content: [
+        {heading: "Screening Methods", text: ""},
+        { heading: "1. Pap Smear (Cytology)", text: "What it is:\nA screening test that checks cervical cells for precancerous or cancerous changes.\n\nHow it is done:\nA healthcare provider inserts a speculum to visualize the cervix.\nCells are gently collected using a brush or spatula.\nThe sample is sent to a laboratory for analysis.\n\nWho should be screened in Nigeria:\nWomen aged 21–65 years\nScreening is recommended regardless of marital status or sexual history once age eligibility is met.\nWomen with HIV or other immunocompromising conditions may require more frequent screening as advised by a clinician.\n\nFrequency:\nEvery 3 years if results are normal.\nMay vary depending on results and clinical history." }
+      ],
+    },
+    {
+      title: "Unit 6: HPV DNA Test (Primary HPV Screening)",
+      content: [
+        {heading: "Screening Methods", text: ""},
+        { heading: "2. HPV DNA Test (Primary HPV Screening)", text: "What it is:\nA test that detects high-risk HPV types responsible for most cervical cancers.\n\nHow it is done:\nSame sampling procedure as a Pap smear (speculum examination).\nThe cervical sample is tested for HPV DNA in a laboratory.\n\nWho should be screened in Nigeria:\nWomen within the recommended screening age group (commonly 25–65 years, depending on program availability).\nIncreasingly recommended as the preferred primary screening method where resources allow.\n\nFrequency:\nEvery 5 years if result is negative.\nFollow-up depends on results." }
+      ],
+    },
+    {
+      title: "Unit 7: Visual Inspection with Acetic Acid (VIA)",
+      content: [
+        {heading: "Screening Methods", text: ""},
+        { heading: "3. Visual Inspection with Acetic Acid (VIA)", text: "What it is:\nA low-cost cervical cancer screening method widely used in Nigeria, especially in primary healthcare settings.\n\nHow it is done:\nA trained healthcare provider applies diluted acetic acid (vinegar solution) to the cervix.\nAfter a short waiting period, the cervix is inspected visually.\nAreas that turn white (acetowhite lesions) may indicate abnormal changes.\n\nWho should be screened in Nigeria:\nWomen within the national recommended screening age group (commonly 30–49 years in many public screening programs).\nVIA is often used in settings where laboratory services are limited.\n\nWho performs VIA:\nTrained healthcare workers (nurses, midwives, doctors) within approved screening programs.\n\nFrequency:\nTypically every 3–5 years, depending on screening program and national/state protocol." }
+      ],
+    },
+    {
+      title: "Unit 8: Overcoming Barriers",
+      content: [
+        { heading: "Common Barriers", text: "• Fear of pain\n  - Screening may cause mild discomfort, but it is not usually painful.\n\n• Embarrassment\n  - Healthcare providers are trained professionals.\n\n• Cost concerns\n  - Some facilities offer free or subsidized screening.\n\n• Cultural beliefs\n  - Cervical cancer is a medical condition, not spiritual.\n\n• Lack of time\n  - Screening takes only a few minutes." },
+        { heading: "Be Motivated", text: "• Your health matters.\n• Early detection saves lives.\n• Screening today can prevent cancer tomorrow.\n• Do not wait for symptoms." }
+      ],
+    },
+    {
+      title: "Unit 9: Call to Action (Cues to Action)",
+      content: [
+        { heading: "Now that you are aware...", text: "Cervical cancer is preventable.\nIt develops slowly.\nIt often has no early symptoms.\nRegular screening and vaccination can save lives.\n\nTake action today." },
+        { heading: "Pick a screening date today", text: "" },
+        { heading: "Complete Your Learning", text: "Click the Complete button when you are done reading all the educational content." }
       ],
     },
   ];
@@ -108,14 +152,30 @@ export function LibraryScreen({ onNavigate }: LibraryScreenProps) {
             className="text-[16px] text-black tracking-[-0.8px]"
             style={{ ...fontInstrument, fontWeight: 400 }}
           >
-            {module.content.map((section, idx) => (
-              <div key={idx} className="mb-[16px]">
-                <p className="mb-[4px]" style={{ fontWeight: 700 }}>
-                  {section.heading}
-                </p>
-                <p className="whitespace-pre-line">{section.text}</p>
-              </div>
-            ))}
+            {module.content.map((section, idx) => {
+              // Hide the instruction section when slides are completed
+              if (section.heading === "Complete Your Learning" && slidesCompleted) {
+                return null;
+              }
+              return (
+                <div key={idx} className="mb-[16px]">
+                  <p className="mb-[4px]" style={{ fontWeight: 700 }}>
+                    {section.heading}
+                  </p>
+                  <p className="whitespace-pre-line">{section.text}</p>
+                  {section.heading === "Pick a screening date today" && (
+                    <button
+                      onClick={() => onNavigate("screening")}
+                      className="w-full bg-[#008080] p-[16px] rounded-[8px] border-none cursor-pointer mt-[12px]"
+                    >
+                      <p className="text-[18px] text-center text-[#8ffc86] tracking-[-0.9px]" style={{ ...fontInstrument, fontWeight: 600 }}>
+                        Book Screening Appointment
+                      </p>
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -145,18 +205,23 @@ export function LibraryScreen({ onNavigate }: LibraryScreenProps) {
                 setCurrentModule(currentModule + 1);
               }
             }}
-            className={`p-[8px] rounded-[8px] border-none cursor-pointer ${
-              isLastSlide && slidesCompleted ? "bg-[#c6c6c6]" : "bg-[#9fe29a]"
+            className={`p-[8px] rounded-[8px] border-none cursor-pointer flex items-center justify-center gap-[4px] ${
+              isLastSlide && slidesCompleted ? "bg-black" : "bg-[#9fe29a]"
             }`}
             disabled={isLastSlide && slidesCompleted}
           >
+            {isLastSlide && slidesCompleted && (
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M13.5 4.5L6 12L2.5 8.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
             <p
               className={`text-[15px] text-center w-[84px] ${
-                isLastSlide && slidesCompleted ? "text-[#f6f6f6]" : "text-black"
+                isLastSlide && slidesCompleted ? "text-white" : "text-black"
               }`}
               style={{ ...fontInstrument, fontWeight: 600 }}
             >
-              {isLastSlide ? t("library.complete") : t("library.next")}
+              {isLastSlide && slidesCompleted ? "Completed" : (isLastSlide ? t("library.complete") : t("library.next"))}
             </p>
           </button>
         </div>
