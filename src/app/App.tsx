@@ -11,6 +11,7 @@ import { ScreeningScreen } from "./components/ScreeningScreen";
 import { AssessmentScreen } from "./components/AssessmentScreen";
 import { LanguageProvider } from "./components/LanguageContext";
 import { UserProvider } from "./components/UserContext";
+import { NotificationProvider } from "./components/NotificationContext";
 
 type Screen = "splash" | "welcome" | "consent" | "auth" | "home" | "library" | "screening" | "assessment";
 
@@ -55,10 +56,12 @@ export default function App() {
   return (
     <LanguageProvider>
       <UserProvider>
-        <Toaster position="top-center" richColors />
-        <MobileShell className={screen === "splash" ? "bg-black" : "bg-[#f8fafc]"}>
-          {renderScreen()}
-        </MobileShell>
+        <NotificationProvider>
+          <Toaster position="top-center" richColors />
+          <MobileShell className={screen === "splash" ? "bg-black" : "bg-[#f8fafc]"}>
+            {renderScreen()}
+          </MobileShell>
+        </NotificationProvider>
       </UserProvider>
     </LanguageProvider>
   );

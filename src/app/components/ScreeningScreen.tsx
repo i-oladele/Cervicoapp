@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "./LanguageContext";
 import { useUser } from "./UserContext";
-import { saveScreening } from "./api";
+import { useNotifications } from "./NotificationContext";
+import { usePushNotifications } from "./PushNotificationManager";
+import { saveScreening, getScreening, getAssessment, createScreeningReminder } from "./api";
 import { DatePicker } from "./DatePicker";
 import { BackgroundLogo } from "./BackgroundLogo";
 import { BottomNav } from "./BottomNav";
+import { PushNotificationSettings } from "./PushNotificationSettings";
 
 const fontInstrument = { fontFamily: "'Instrument Sans', sans-serif" };
 
@@ -22,6 +25,41 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
   const [saving, setSaving] = useState(false);
   const { t } = useLanguage();
   const { user } = useUser();
+  const { addNotification } = useNotifications();
+
+  // Fetch baseline assessment to get age and saved screening data
+  useEffect(() => {
+    const fetchData = async () => {
+      if (user) {
+        try {
+          // Fetch saved screening data first
+          const screening = await getScreening(user.phone);
+          if (screening) {
+            setAge(screening.age || "");
+            setCenter(screening.center || "");
+            setDate(screening.date || "");
+            setReminder(screening.reminder !== false); // Default to true
+          }
+          
+          // If no age from screening, try to get from assessment
+          if (!screening?.age || screening.age === "") {
+            const assessment = await getAssessment(user.phone, "baseline");
+            if (assessment && assessment.answers && assessment.answers.length > 0) {
+              const ageAnswer = assessment.answers[0];
+              if (ageAnswer) {
+                setAge(ageAnswer.toString());
+              }
+            }
+          }
+        } catch (err) {
+          console.log("No saved data found or error fetching:", err);
+          // If no data found, fields remain empty for manual entry
+        }
+      }
+    };
+
+    fetchData();
+  }, [user]);
 
   const handleSave = async () => {
     if (!user) {
@@ -30,7 +68,25 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
     }
     setSaving(true);
     try {
+      // Save screening data
       await saveScreening(user.phone, { age, center, date, reminder });
+      
+      // Create screening reminders if reminder is enabled and date is set
+      if (reminder && date) {
+        try {
+          await createScreeningReminder(user.phone, date);
+          
+          // Add immediate notification for user
+          addNotification({
+            message: `Screening appointment scheduled for ${new Date(date).toLocaleDateString()} at ${center}. You'll receive reminders before your appointment.`,
+            type: "screening_reminder"
+          });
+        } catch (reminderErr) {
+          console.error("Failed to create reminders:", reminderErr);
+          // Don't fail the save if reminders fail
+        }
+      }
+      
       toast.success(t("screening.successTitle"), {
         description: t("screening.successDesc"),
       });
@@ -119,6 +175,11 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
               />
             </button>
           </div>
+
+          {/* Push Notification Settings */}
+          {reminder && (
+            <PushNotificationSettings />
+          )}
 
           {/* Save Button */}
           <button

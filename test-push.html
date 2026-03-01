@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Push Notification Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #008080;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 10px 10px 0;
+        }
+        button:hover {
+            background: #006666;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>CervicoApp Push Notification Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Test Backend Connection</h2>
+        <button onclick="testBackend()">Test Backend Health</button>
+        <div id="backend-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test Push Notification Subscription</h2>
+        <button onclick="requestPermission()">Request Permission</button>
+        <button onclick="subscribeToPush()" disabled>Subscribe to Push</button>
+        <button onclick="sendTestNotification()" disabled>Send Test Notification</button>
+        <div id="subscription-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Reminder System</h2>
+        <button onclick="createReminder()">Create Test Reminder</button>
+        <button onclick="triggerReminders()">Trigger Reminders</button>
+        <div id="reminder-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Test Logs</h2>
+        <div id="logs" class="log"></div>
+    </div>
+
+    <script>
+        let subscription = null;
+        let testPhone = '1234567890'; // Test phone number
+
+        function log(message, type = 'info') {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logs.innerHTML += `[${timestamp}] ${message}\n`;
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        function updateStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+        }
+
+        async function testBackend() {
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const data = await response.json();
+                updateStatus('backend-status', `✅ Backend Healthy - ${data.subscriptions} subscriptions, ${data.reminders} reminders`, 'success');
+                log(`Backend health check successful: ${JSON.stringify(data)}`, 'success');
+            } catch (error) {
+                updateStatus('backend-status', '❌ Backend Connection Failed', 'error');
+                log(`Backend error: ${error.message}`, 'error');
+            }
+        }
+
+        async function requestPermission() {
+            if (!('Notification' in window)) {
+                updateStatus('subscription-status', '❌ Notifications Not Supported', 'error');
+                return;
+            }
+
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    updateStatus('subscription-status', '✅ Permission Granted', 'success');
+                    log('Notification permission granted', 'success');
+                } else {
+                    updateStatus('subscription-status', '❌ Permission Denied', 'error');
+                    log('Notification permission denied', 'error');
+                }
+            } catch (error) {
+                updateStatus('status', '❌ Permission Request Failed', 'error');
+                log(`Permission request failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function subscribeToPush() {
+            if (!('serviceWorker' in navigator)) {
+                updateStatus('subscription-status', '❌ Service Worker Not Supported', 'error');
+                return;
+            }
+
+            try {
+                const registration = await navigator.serviceWorker.ready;
+                const subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array('BHQZEGALEQuASAzX6HMfnO7nvZAs545ePgt1mh2tGYpSptvdH7WTYYTiLXUpH9svd4NrECGx30JiTkss75t5EZU')
+                });
+
+                // Save subscription to backend
+                const response = await fetch('http://localhost:3001/api/push-subscription', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phone: testPhone,
+                        subscription: subscription
+                    })
+                });
+
+                if (response.ok) {
+                    updateStatus('subscription-status', '✅ Subscribed Successfully', 'success');
+                    log('Push subscription saved to backend', 'success');
+                    log(`Subscription endpoint: ${subscription.endpoint}`, 'info');
+                } else {
+                    updateStatus('subscription-status', '❌ Failed to Save Subscription', 'error');
+                    log('Failed to save subscription to backend', 'error');
+                }
+            } catch (error) {
+                updateStatus('subscription-status', '❌ Subscription Failed', 'error');
+                log(`Subscription failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function sendTestNotification() {
+            try {
+                const response = await fetch('http://localhost:3001/api/send-test-notification', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phone: testPhone,
+                        title: 'Test Notification',
+                        message: 'This is a test push notification from CervicoApp!'
+                    })
+                });
+
+                if (response.ok) {
+                    updateStatus('subscription-status', '✅ Test Notification Sent', 'success');
+                    log('Test notification sent successfully', 'success');
+                } else {
+                    updateStatus('subscription-status', '❌ Failed to Send Notification', 'error');
+                    log('Failed to send test notification', 'error');
+                }
+            } catch (error) {
+                updateStatus('subscription-status', '❌ Notification Send Failed', 'error');
+                log(`Failed to send notification: ${error.message}`, 'error');
+            }
+        }
+
+        async function createReminder() {
+            const futureDate = new Date();
+            futureDate.setDate(futureDate.getDate() + 2); // 2 days from now
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/screening-reminders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phone: testPhone,
+                        screeningDate: futureDate.toISOString().split('T')[0]
+                    })
+                });
+
+                if (response.ok) {
+                    updateStatus('reminder-status', '✅ Test Reminder Created', 'success');
+                    log(`Test reminder created for: ${futureDate.toDateString()}`, 'success');
+                } else {
+                    updateStatus('reminder-status', '❌ Failed to Create Reminder', 'error');
+                    log('Failed to create test reminder', 'error');
+                }
+            } catch (error) {
+                updateStatus('reminder-status', '❌ Reminder Creation Failed', 'error');
+                log(`Failed to create reminder: ${error.message}`, 'error');
+            }
+        }
+
+        async function triggerReminders() {
+            try {
+                const response = await fetch('http://localhost:3001/api/check-reminders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (response.ok) {
+                    updateStatus('reminder-status', '✅ Reminder Check Triggered', 'success');
+                    log('Manual reminder check triggered', 'success');
+                } else {
+                    updateStatus('reminder-status', '❌ Failed to Trigger Reminders', 'error');
+                    log('Failed to trigger reminders', 'error');
+                }
+            } catch (error) {
+                updateStatus('reminder-status', '❌ Reminder Trigger Failed', 'error');
+                log(`Failed to trigger reminders: ${error.message}`, 'error');
+            }
+        }
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/-/g, '+')
+                .replace(/_/g, '/');
+
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+    </script>
+</body>
+</html>

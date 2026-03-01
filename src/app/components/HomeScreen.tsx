@@ -1,4 +1,4 @@
-import img3DiconsFileTextDynamicColor from "figma:asset/3b2c1ffa27c5ea87c5bf8baa40559c17cefa558d.png";
+import img3DiconsFileTextDynamicColor from "../../assets/3b2c1ffa27c5ea87c5bf8baa40559c17cefa558d.png";
 import img3DiconsNotebookDynamicColor from "figma:asset/daa3b4e3a939e95bb002892d86e013e60c242b18.png";
 import img3DiconsCopyDynamicColor from "figma:asset/15c0a9c33d08ea2f8ec0afb10ad1d88796ddb2e5.png";
 import imgIstockphoto from "figma:asset/86dbc51e2c0e72a85706bfbd9962dfd792e02e28.png";
@@ -9,6 +9,7 @@ import { Circle } from "lucide-react";
 import { useLanguage } from "./LanguageContext";
 import { useUser } from "./UserContext";
 import { VideoCard } from "./VideoCard";
+import { NotificationCenter } from "./NotificationCenter";
 import FigmaCheckCircleHome from "../../imports/CheckCircle-10-491";
 
 const fontInstrument = { fontFamily: "'Instrument Sans', sans-serif" };
@@ -32,18 +33,23 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto pt-[60px] pb-[24px] relative z-[1]">
         {/* Welcome Header */}
-        <p
-          className="px-[24px] text-[28px] text-[#008080] tracking-[-1.4px]"
-          style={{ ...fontInstrument, fontWeight: 600 }}
-        >
-          {t("home.welcome")}
-        </p>
-        <p
-          className="px-[24px] text-[24px] text-black tracking-[-1.2px] mt-[4px]"
-          style={{ ...fontInstrument, fontWeight: 500 }}
-        >
-          {t("home.letsStart")}
-        </p>
+        <div className="px-[24px] flex justify-between items-start">
+          <div>
+            <p
+              className="text-[28px] text-[#008080] tracking-[-1.4px]"
+              style={{ ...fontInstrument, fontWeight: 600 }}
+            >
+              {t("home.welcome")}
+            </p>
+            <p
+              className="text-[24px] text-black tracking-[-1.2px] mt-[4px]"
+              style={{ ...fontInstrument, fontWeight: 500 }}
+            >
+              {t("home.letsStart")}
+            </p>
+          </div>
+          <NotificationCenter />
+        </div>
 
         {/* Progress Section */}
         <div className="px-[24px] mt-[20px]">
