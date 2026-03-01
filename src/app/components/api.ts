@@ -59,19 +59,19 @@ export async function getUserData(phone: string) {
 }
 
 // Screening
-export async function saveScreening(phone: string, data: { age: string; center: string; date: string; reminder: boolean }) {
-  return localRequest("/screening", {
+export async function saveScreening(phone: string, age: number, center: string, date: string, reminder: boolean) {
+  return request("/screening", {
     method: "POST",
-    body: JSON.stringify({ phone, ...data }),
+    body: JSON.stringify({ phone, age, center, date, reminder }),
   });
 }
 
-export async function getScreening(phone: string) {
-  return localRequest(`/screening/${encodeURIComponent(phone)}`);
+export async function getScreeningData(phone: string) {
+  return request(`/screening/${phone}`);
 }
 
 export async function updateScreeningCompletion(phone: string, completed: boolean) {
-  return localRequest("/screening/completed", {
+  return request("/screening/completed", {
     method: "POST",
     body: JSON.stringify({ phone, completed }),
   });
@@ -97,54 +97,46 @@ export async function completeModules(phone: string) {
   });
 }
 
-// Notifications
-export async function saveNotification(phone: string, notification: { message: string; type: string }) {
-  return localRequest("/notifications", {
-    method: "POST",
-    body: JSON.stringify({ phone, notification }),
-  });
-}
-
-export async function getUserNotifications(phone: string) {
-  return localRequest(`/notifications/${encodeURIComponent(phone)}`);
-}
-
-export async function markNotificationRead(phone: string, notificationId: string) {
-  return localRequest(`/notifications/${encodeURIComponent(phone)}/${notificationId}/read`, {
-    method: "PUT",
-  });
-}
-
-// Screening Reminders
-export async function createScreeningReminder(phone: string, screeningDate: string) {
-  return localRequest("/screening-reminders", {
-    method: "POST",
-    body: JSON.stringify({ phone, screeningDate }),
-  });
-}
-
-export async function getScreeningReminders(phone: string) {
-  return localRequest(`/screening-reminders/${encodeURIComponent(phone)}`);
-}
-
 // Push Notifications
 export async function savePushSubscription(phone: string, subscription: any) {
-  return localRequest("/push-subscription", {
+  return request("/push-subscription", {
     method: "POST",
     body: JSON.stringify({ phone, subscription }),
   });
 }
 
-export async function sendPushNotification(message: string, title: string, subscription: any) {
-  return localRequest("/send-test-notification", {
+export async function getPushSubscription(phone: string) {
+  return request(`/push-subscription/${phone}`);
+}
+
+export async function sendPushNotification(phone: string, title: string, body: string, data?: any) {
+  return request("/push/send", {
     method: "POST",
-    body: JSON.stringify({ message, title, subscription }),
+    body: JSON.stringify({ phone, title, body, data }),
   });
 }
 
-export async function triggerReminderCheck() {
-  return localRequest("/check-reminders", {
-    method: "POST",
-    body: JSON.stringify({}),
-  });
+// Admin/Data Access
+export async function getAllUsers() {
+  return request("/admin/users");
+}
+
+export async function getAllAssessments() {
+  return request("/admin/assessments");
+}
+
+export async function getAllScreenings() {
+  return request("/admin/screenings");
+}
+
+export async function getAllNotifications() {
+  return request("/admin/notifications");
+}
+
+export async function getUserDataAdmin(phone: string) {
+  return request(`/admin/user/${phone}`);
+}
+
+export async function getAnalytics() {
+  return request("/admin/analytics");
 }

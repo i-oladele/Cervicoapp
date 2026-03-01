@@ -11,7 +11,7 @@ import { useLanguage } from "./LanguageContext";
 import { useUser } from "./UserContext";
 import { VideoCard } from "./VideoCard";
 import { NotificationCenter } from "./NotificationCenter";
-import { getScreening } from "./api";
+import { getScreeningData } from "./api";
 import { ScreeningCompletionModal } from "./ScreeningCompletionModal";
 import FigmaCheckCircleHome from "../../imports/CheckCircle-10-491";
 
@@ -34,7 +34,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
     const fetchScreeningData = async () => {
       if (user) {
         try {
-          const screening = await getScreening(user.phone);
+          const screening = await getScreeningData(user.phone);
           setScreeningData(screening);
           setHasCheckedScreening(false); // Default to No
           setScreeningCompleted(screening?.completed || false);
