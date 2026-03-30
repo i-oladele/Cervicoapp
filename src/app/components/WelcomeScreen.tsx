@@ -15,9 +15,15 @@ export function WelcomeScreen({ onGetStarted }: { onGetStarted: () => void }) {
         <div className="pt-[73px] px-[24px] flex items-baseline gap-[4px]">
           <p
             className="text-[28px] text-black tracking-[-1.6px]"
-            style={{ fontFamily: "'Alatsi', sans-serif", fontWeight: 600 }}
+            style={{ fontFamily: "'Instrument Sans', sans-serif", fontWeight: 600 }}
           >
-            {t("welcome.to")} {t("welcome.brand")}
+            {t("welcome.to")}
+          </p>
+          <p
+            className="text-[32px] text-[#008080]"
+            style={{ fontFamily: "'Alatsi', sans-serif" }}
+          >
+            {t("welcome.brand")}
           </p>
         </div>
 
