@@ -14,13 +14,13 @@ export function WelcomeScreen({ onGetStarted }: { onGetStarted: () => void }) {
         {/* Welcome header */}
         <div className="pt-[73px] px-[24px] flex items-baseline gap-[8px]">
           <p
-            className="text-[32px] text-black tracking-[-1.6px]"
+            className="text-[28px] text-black tracking-[-1.6px]"
             style={{ fontFamily: "'Instrument Sans', sans-serif", fontWeight: 600 }}
           >
             {t("welcome.to")}
           </p>
           <p
-            className="text-[36px] text-[#008080]"
+            className="text-[32px] text-[#008080]"
             style={{ fontFamily: "'Alatsi', sans-serif" }}
           >
             {t("welcome.brand")}
