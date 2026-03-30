@@ -17,11 +17,11 @@ const LanguageContext = createContext<LanguageContextType>({
 export const translations: Record<Language, Record<string, string>> = {
   en: {
     // Splash
-    "splash.title": "Cervicoapp",
+    "splash.title": "CerviHealthCo App",
 
     // Welcome
     "welcome.to": "Welcome to",
-    "welcome.brand": "Cervicoapp",
+    "welcome.brand": "CerviHealthCo App",
     "welcome.title1": "Cervical Cancer Screening",
     "welcome.title2": "Support Tool",
     "welcome.subtitle": "Supporting women with reliable information and screening guidance.",
@@ -340,11 +340,11 @@ export const translations: Record<Language, Record<string, string>> = {
 
   yo: {
     // Splash
-    "splash.title": "Cervicoapp",
+    "splash.title": "CerviHealthCo App",
 
     // Welcome
     "welcome.to": "Ẹ ku abọ si",
-    "welcome.brand": "Cervicoapp",
+    "welcome.brand": "CerviHealthCo App",
     "welcome.title1": "Àyẹ̀wò Àrùn Jẹjẹrẹ",
     "welcome.title2": "Ọ̀nà Ìrànlọ́wọ́",
     "welcome.subtitle": "Àtìlẹ́yìn fún àwọn obìnrin pẹ̀lú ìmọ̀ tó ṣe é gbẹ́kẹ̀lé àti ìtọ́sọ́nà nípa àyẹ̀wò.",
