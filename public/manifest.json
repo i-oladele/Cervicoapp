@@ -1,6 +1,6 @@
 {
-  "name": "CervicoApp - Cervical Cancer Screening",
-  "short_name": "CervicoApp",
+  "name": "CerviHealthCo App - Cervical Cancer Screening",
+  "short_name": "CerviHealthCo",
   "description": "Educational app for cervical cancer screening and prevention",
   "start_url": "/",
   "display": "standalone",
