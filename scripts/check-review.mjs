@@ -1,0 +1,18 @@
+import {build} from 'esbuild';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+const compiled=await build({entryPoints:['supabase/functions/server/questionnaire.ts'],bundle:true,write:false,format:'esm'});
+const {questions}=await import('data:text/javascript;base64,'+Buffer.from(compiled.outputFiles[0].text).toString('base64'));
+assert.equal(questions.length,36);
+assert.deepEqual(['A','B','C','D'].map(section=>questions.filter(q=>q.section===section).length),[10,12,6,8]);
+assert.equal(new Set(questions.map(q=>q.id)).size,36);
+const shown=(type,answers)=>questions.filter(q=>(type==='endline'||q.section!=='D')&&(!q.when||answers[q.when[0]]===q.when[1]));
+assert.equal(shown('baseline',{'11':'Yes','23':'Yes','25':'Yes'}).length,28);
+assert.equal(shown('endline',{'11':'No','23':'No','25':'No'}).length,31);
+const handlers={};let notification;
+vm.runInNewContext(fs.readFileSync('public/sw.js','utf8'),{self:{addEventListener:(name,fn)=>handlers[name]=fn,registration:{showNotification:async(title,options)=>notification={title,options}}}});
+let pending;handlers.push({data:{json:()=>({title:'Ìránnilétí àyẹ̀wò',body:'Ọjọ́ àyẹ̀wò rẹ',data:{url:'/'}})},waitUntil:p=>pending=p});await pending;
+assert.equal(notification.title,'Ìránnilétí àyẹ̀wò');assert.equal(notification.options.body,'Ọjọ́ àyẹ̀wò rẹ');
+await build({entryPoints:['supabase/functions/server/index.ts'],bundle:true,write:false,platform:'neutral',external:['npm:*','jsr:*']});
+console.log('Passed questionnaire structure, skip logic, Yoruba notification display and server compilation. Live delivery remains unverified.');

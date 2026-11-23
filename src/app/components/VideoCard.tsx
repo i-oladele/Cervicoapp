@@ -18,7 +18,7 @@ export function VideoCard({ videoId, thumbnail, onPlay }: VideoCardProps) {
   return (
     <div className="relative h-[192px] rounded-[8px] overflow-hidden bg-black">
       {isPlaying ? (
-        <iframe
+        <iframe title="Cervical cancer education"
           className="absolute inset-0 size-full border-none"
           src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
           allow="autoplay; encrypted-media; fullscreen"
@@ -26,13 +26,14 @@ export function VideoCard({ videoId, thumbnail, onPlay }: VideoCardProps) {
         />
       ) : (
         <button
+          aria-label="Play cervical cancer education video"
           onClick={handlePlay}
           className="absolute inset-0 size-full border-none p-0 cursor-pointer bg-transparent"
         >
           <img
             alt="Educational video"
             className="absolute inset-0 max-w-none object-cover size-full"
-            src={thumbnail}
+            src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
           />
           <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
             <div className="bg-white/30 rounded-full p-[12px]">

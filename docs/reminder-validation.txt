@@ -1,0 +1,10 @@
+Reminder deployment and validation
+
+Status: local build and simulated service-worker push display passed. Real-device delivery is NOT verified.
+
+Configure fresh VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY and VAPID_SUBJECT on the Supabase function. Set VITE_VAPID_PUBLIC_KEY to the matching public key when building the frontend. Do not reuse the example private key committed in the legacy backend/push-server.js.
+Configure REMINDER_CRON_SECRET on the function. Schedule POST /functions/v1/make-server-bcdc6876/reminders/run daily at 09:00 Africa/Lagos, with Authorization: Bearer <REMINDER_CRON_SECRET>. Protect scheduler credentials. Deploy function and frontend together.
+
+On a consenting test account/device: enable notifications, confirm subscription registration succeeds, send a test via authenticated /push/send and confirm the phone visibly receives it. API acceptance does not prove device receipt. Repeat with the app closed. Test reminder-enabled appointment dates today, tomorrow and two days ahead; trigger the protected scheduler and record visible receipt in each case. Re-run to check duplicate suppression. Disable reminders and confirm no further sends; repeat after marking screening completed. Test denied browser permission, an expired subscription and network failure. Confirm Yoruba account messages display correctly. Simultaneous scheduler invocations must be avoided; the current KV receipt check is not an atomic lock.
+
+Yoruba review: spelling/wording corrections applied locally. Fluent reviewer sign-off remains outstanding. Review consent, questionnaire, educational content and reminder messages against English for meaning, culturally appropriate language and comprehension with intended users. Speech synthesis depends on voices installed on the user's device; Yoruba narration is not guaranteed.

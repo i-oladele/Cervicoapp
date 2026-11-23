@@ -370,10 +370,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "consent.risk2": "Ìrònú lórí ìmọ̀ ìlera ara ẹni",
     "consent.risksNote": "Kò sí ewu ara tí a mọ̀ tó ní í ṣe pẹ̀lú lílo àpù yìí.",
     "consent.confidentialityTitle": "Àṣírí",
-    "consent.confidentiality1": "A óò pa ìmọ̀ rẹ mọ́.",
+    "consent.confidentiality1": "A óò pa àlàyé nípa rẹ mọ́ ní àṣírí.",
     "consent.confidentiality2": "A óò tọ́jú dátà náà dáadáa.",
     "consent.confidentiality3": "A óò fi kóòdù sí àwọn ìdáhùn, a óò sì pa orúkọ mọ́ bí ó bá ṣeé ṣe.",
-    "consent.confidentiality4": "Àwọn ọmọ ẹgb́ ìwádìí tí wọ́n ní àṣẹ nìkan ló ní ànfààní sí dátà náà.",
+    "consent.confidentiality4": "Àwọn ọmọ ẹgbẹ́ ìwádìí tí wọ́n ní àṣẹ nìkan ló ní ànfààní sí dátà náà.",
     "consent.confidentiality5": "A óò ṣe ìjábọ̀ àbájáde ní ọ̀nà àpapọ̀ (kò sí ìdámọ̀ ẹnìkọ̀ọ̀kan).",
     "consent.confidentiality6": "Orúkọ rẹ kò ní wà nínú àwọn ìjábọ̀ tí a tẹ̀ jáde.",
     "consent.voluntaryTitle": "Ìkópa Àtinúwá àti Ìyọkúrò",
@@ -455,7 +455,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "library.m1.h3": "Bí Ó Ṣe Ń Dàgbà",
     "library.m1.t3": "Àrùn jẹjẹrẹ ọrùn ilé-ọmọ máa ń dàgbà díẹ̀díẹ̀ pẹ̀lú àkókò:\nÀwọn sẹ́ẹ̀lì deédé \u2192 Àyípadà ṣáájú jẹjẹrẹ (CIN) \u2192 Àrùn jẹjẹrẹ tó ti tàn ká.",
     "library.m1.h4": "Àmì Àìsàn",
-    "library.m1.t4": "Àwọn àmì àìsàn tó wọ́pọ̀ ni:\n\u2022 Ẹ̀jẹ̀ tó ń jáde lójú-ara ọ̀nà ìbímọ tó kìí e deédé (b.a., lẹ́yìn ìbálòpọ̀)\n\u2022 Omi tó ń jáde lójú-ara ọ̀nà ìbímọ tó yàtọ̀\n\u2022 Ìrora ẹ̀gbẹ́ ìdí tàbí ìrora nígbà ìbálòpọ̀",
+    "library.m1.t4": "Àwọn àmì àìsàn tó wọ́pọ̀ ni:\n\u2022 Ẹ̀jẹ̀ tó ń jáde lójú-ara ọ̀nà ìbímọ tó kò déédé (b.a., lẹ́yìn ìbálòpọ̀)\n\u2022 Omi tó ń jáde lójú-ara ọ̀nà ìbímọ tó yàtọ̀\n\u2022 Ìrora ẹ̀gbẹ́ ìdí tàbí ìrora nígbà ìbálòpọ̀",
     "library.m1.h5": "Ìdènà",
     "library.m1.t5": "\u2022 Abẹ́rẹ́ àjẹsára HPV (ṣáájú ìbálòpọ̀ àkọ́kọ́)\n\u2022 Àyẹ̀wò Pap àti ìdánwò HPV déédé\n\u2022 Ìbálòpọ̀ aláàbò (b.a., lílo kọ́ńdọ́mù)",
     "library.m1.h6": "Ìtọ́jú",
@@ -470,7 +470,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "library.m2.h3": "Ta Ló Yẹ Kí Ó Ṣe Àyẹ̀wò?",
     "library.m2.t3": "Àwọn obìnrin tó wà láàárín ọdún 21-65 yẹ kí wọ́n máa ṣe àyẹ̀wò déédé. Àwọn obìnrin ọdún 21-29 yẹ kí wọ́n ṣe ìdánwò Pap ní ọdún mẹ́ta mẹ́ta. Àwọn obìnrin ọdún 30-65 lè ṣe ìdánwò Pap àti HPV ní ọdún márùn-ún márùn-ún.",
     "library.m2.h4": "Ohun Tí O Lè Retí",
-    "library.m2.t4": "Ìlànà náà yára, kò sì máa ń dùn ní ọ̀pọ̀ ìgbà. Olùpèsè ìtọ́jú ìlera yóò kó àwọn sẹ́ẹ̀lì láti orí ọrùn ilé-ọmọ pẹ̀lú búrọ́ọ̀ṣì kékeré tàbí spatula. Àbájáde máa ń wà ní ̀sẹ̀ kan sí mẹ́ta.",
+    "library.m2.t4": "Ìlànà náà yára, kò sì máa ń dùn ní ọ̀pọ̀ ìgbà. Olùpèsè ìtọ́jú ìlera yóò kó àwọn sẹ́ẹ̀lì láti orí ọrùn ilé-ọmọ pẹ̀lú búrọ́ọ̀ṣì kékeré tàbí spatula. Àbájáde máa ń wà ní ọ̀sẹ̀ kan sí mẹ́ta.",
 
     // Library Module 3
     "library.m3.title": "HPV & Àwọn Ohun Ewu",
@@ -662,6 +662,12 @@ export const translations: Record<Language, Record<string, string>> = {
   },
 };
 
+const screeningEn = "Nigeria’s 2025 guideline identifies women aged 30–49 as the primary screening group, starting at 30; screening starts at 25 for women living with HIV. This study recruits women aged 30–49. Your clinician will advise on the test and repeat interval. Seek care for unusual bleeding or other symptoms at any age.";
+const screeningYo = "Àyẹ̀wò déédé bẹ̀rẹ̀ ní ọjọ́ orí 30, tàbí 25 fún àwọn obìnrin tó ń gbé pẹ̀lú HIV (Ìtọ́sọ́nà Nàìjíríà 2025). Ìwádìí yìí gba àwọn obìnrin ọdún 30–49. Òṣìṣẹ́ ìlera yóò sọ irú àyẹ̀wò àti ìgbà tí o yẹ kí o tún ṣe é. Wá ìtọ́jú fún ẹ̀jẹ̀ tí kò déédé ní ọjọ́ orí èyíkéyìí.";
+translations.en['library.m2.t3']=screeningEn; translations.en['library.faq7.a']=screeningEn;
+translations.yo['library.m2.t3']=screeningYo; translations.yo['library.faq7.a']=screeningYo;
+translations.en['consent.confidentiality2']='Your phone number is collected for account login and reminders. Questionnaire responses are linked to your participant code. Only authorised research staff should access your records.';
+translations.yo['consent.confidentiality2']='A gba nọ́mbà fóònù rẹ fún wíwọlé àti ìránnilétí. A so ìdáhùn rẹ mọ́ kóòdù olùkópa rẹ. Àwọn olùwádìí tó ní àṣẹ nìkan ló yẹ kí ó rí àkọsílẹ̀ rẹ.';
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState<Language>("en");
 

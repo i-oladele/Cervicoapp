@@ -3,13 +3,18 @@ import { toast } from "sonner";
 import { BackgroundLogo } from "./BackgroundLogo";
 import { useLanguage } from "./LanguageContext";
 import { useUser } from "./UserContext";
-import { registerUser, loginUser } from "./api";
+import { registerUser, loginUser, resetPin } from "./api";
 
 type AuthTab = "register" | "login";
 
 export function AuthScreen({ onAuth }: { onAuth: () => void }) {
+  const [recoveryCode,setRecoveryCode]=useState("");
+  const [recovering,setRecovering]=useState(false);
   const [tab, setTab] = useState<AuthTab>("register");
   const [phone, setPhone] = useState("");
+  const [facility,setFacility]=useState("");
+  const [participantCode,setParticipantCode]=useState("");
+  const [lga,setLga]=useState("");
   const [city, setCity] = useState("");
   const [pin, setPin] = useState(["", "", "", ""]);
   const [confirmPin, setConfirmPin] = useState(["", "", "", ""]);
@@ -24,7 +29,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
 
   const isPhoneValid = (value: string): boolean => {
     const cleaned = value.replace(/\s/g, "");
-    return /^\+234\d{10}$/.test(cleaned);
+    return /^(\+234\d{10}|0\d{10})$/.test(cleaned);
   };
 
   const handlePhoneChange = (value: string) => {
@@ -67,6 +72,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
       return;
     }
 
+    if(tab === "register" && (!facility || !participantCode.trim() || !lga.trim())) { toast.error("Enter study facility, participant code and LGA"); return; }
     const pinStr = pin.join("");
 
     if (tab === "register") {
@@ -91,8 +97,8 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
     setLoading(true);
     try {
       if (tab === "register") {
-        const cleanedPhone = phone.replace(/\s/g, "");
-        const res = await registerUser(cleanedPhone, city.trim(), pinStr, language);
+        const cleanedPhone = phone.replace(/\s/g, "").replace(/^0/, "+234");
+        const res = await registerUser(cleanedPhone, city.trim(), pinStr, language, facility, participantCode.trim(), lga.trim());
         setUser(res.user);
         setProgress({
           baselineCompleted: false,
@@ -101,7 +107,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
         });
         toast.success(t("auth.registerSuccess"));
       } else {
-        const cleanedPhone = phone.replace(/\s/g, "");
+        const cleanedPhone = phone.replace(/\s/g, "").replace(/^0/, "+234");
         const res = await loginUser(cleanedPhone, pinStr);
         setUser(res.user);
         if (res.progress) {
@@ -119,7 +125,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
   };
 
   const handlePinChange = (index: number, value: string) => {
-    if (value.length > 1) return;
+    if (!/^\d?$/.test(value)) return;
     const newPin = [...pin];
     newPin[index] = value;
     setPin(newPin);
@@ -130,7 +136,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
   };
 
   const handleConfirmPinChange = (index: number, value: string) => {
-    if (value.length > 1) return;
+    if (!/^\d?$/.test(value)) return;
     const newConfirmPin = [...confirmPin];
     newConfirmPin[index] = value;
     setConfirmPin(newConfirmPin);
@@ -149,7 +155,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
       {/* Tabs - fixed at top */}
       <div className="shrink-0 pt-[120px] pb-[16px] flex justify-center relative z-[1]">
         <div className="flex items-center">
-          <button
+          <button type="button"
             onClick={() => setTab("register")}
             className="flex items-center justify-center px-[10px] py-[8px] w-[108px] bg-transparent border-none cursor-pointer relative"
           >
@@ -165,7 +171,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
               {t("auth.register")}
             </p>
           </button>
-          <button
+          <button type="button"
             onClick={() => setTab("login")}
             className="flex items-center justify-center px-[10px] py-[8px] w-[108px] bg-transparent border-none cursor-pointer relative"
           >
@@ -193,7 +199,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
               <p className="text-[14px] text-[#333]" style={fontInstrument}>{t("auth.phone")}</p>
               <div className={`bg-white rounded-[8px] border ${phoneTouched && phoneError ? "border-[#e53e3e]" : "border-[#c6c6c6]"}`}>
                 <input
-                  type="tel"
+                  type="tel" aria-label={t("auth.phone")}
                   placeholder={t("auth.phonePlaceholder")}
                   value={phone}
                   onChange={(e) => handlePhoneChange(e.target.value)}
@@ -213,7 +219,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
               <div className={`bg-white rounded-[8px] border ${cityTouched && cityError ? "border-[#e53e3e]" : "border-[#c6c6c6]"}`}>
                 <input
                   type="text"
-                  placeholder={t("auth.cityPlaceholder")}
+                  aria-label={t("auth.city")} placeholder={t("auth.cityPlaceholder")}
                   value={city}
                   onChange={(e) => handleCityChange(e.target.value)}
                   onBlur={handleCityBlur}
@@ -226,6 +232,9 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
               )}
             </div>
 
+            <label>Study facility<select className="w-full p-3 border rounded" value={facility} onChange={e=>setFacility(e.target.value)}><option value="">Select facility</option><option>State Specialist Hospital, Asubiaro, Osogbo</option><option>State Hospital, Oke-Ogbo, Ile-Ife</option><option>State Hospital, Ikirun</option><option>State Hospital, Ipetu-Ijesa</option></select></label>
+            <label>Questionnaire serial number<input className="w-full p-3 border rounded" value={participantCode} onChange={e=>setParticipantCode(e.target.value)}/></label>
+            <label>Local Government Area<input className="w-full p-3 border rounded" value={lga} onChange={e=>setLga(e.target.value)}/></label>
             {/* PIN */}
             <div className="flex flex-col gap-[12px]">
               <p className="text-[14px] text-[#333]" style={fontInstrument}>{t("auth.pin")}</p>
@@ -234,7 +243,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
                   <div key={i} className="bg-white rounded-[8px] border border-[#c6c6c6] size-[44px]">
                     <input
                       id={`pin-register-${i}`}
-                      type="password"
+                      type="password" inputMode="numeric" aria-label={`PIN digit ${i+1}`}
                       maxLength={1}
                       value={digit}
                       onChange={(e) => handlePinChange(i, e.target.value)}
@@ -254,7 +263,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
                   <div key={i} className="bg-white rounded-[8px] border border-[#c6c6c6] size-[44px]">
                     <input
                       id={`confirm-pin-register-${i}`}
-                      type="password"
+                      type="password" inputMode="numeric" aria-label={`PIN digit ${i+1}`}
                       maxLength={1}
                       value={digit}
                       onChange={(e) => handleConfirmPinChange(i, e.target.value)}
@@ -270,7 +279,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
             </div>
 
             {/* Register Button */}
-            <button
+            <button type="button"
               onClick={handleSubmit}
               disabled={loading}
               className="w-full bg-[#008080] p-[16px] rounded-[12px] border-none cursor-pointer mt-[4px]"
@@ -287,7 +296,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
               <p className="text-[14px] text-[#333]" style={fontInstrument}>{t("auth.phone")}</p>
               <div className={`bg-white rounded-[8px] border ${phoneTouched && phoneError ? "border-[#e53e3e]" : "border-[#c6c6c6]"}`}>
                 <input
-                  type="tel"
+                  type="tel" aria-label={t("auth.phone")}
                   placeholder={t("auth.phonePlaceholder")}
                   value={phone}
                   onChange={(e) => handlePhoneChange(e.target.value)}
@@ -309,7 +318,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
                   <div key={i} className="bg-white rounded-[8px] border border-[#c6c6c6] size-[44px]">
                     <input
                       id={`pin-login-${i}`}
-                      type="password"
+                      type="password" inputMode="numeric" aria-label={`PIN digit ${i+1}`}
                       maxLength={1}
                       value={digit}
                       onChange={(e) => handlePinChange(i, e.target.value)}
@@ -324,8 +333,10 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
               )}
             </div>
 
+            <button type="button" onClick={()=>setRecovering(!recovering)}>Forgot PIN?</button>
+            {recovering&&<div><p>Ask your study research assistant to verify your identity and issue a recovery code. It expires after 15 minutes.</p><label>Recovery code<input className="w-full p-3 border" value={recoveryCode} onChange={e=>setRecoveryCode(e.target.value)}/></label><p>Enter your new four-digit PIN in the PIN boxes above.</p><button type="button" disabled={loading} onClick={async()=>{setLoading(true);try{await resetPin(phone.replace(/\s/g,"").replace(/^0/,"+234"),recoveryCode,pin.join(""));toast.success("PIN reset. You can now log in.");setRecovering(false);setRecoveryCode("");}catch(e:any){toast.error(e.message);}finally{setLoading(false);}}}>Reset PIN</button></div>}
             {/* Login Button */}
-            <button
+            <button type="button"
               onClick={handleSubmit}
               disabled={loading}
               className="w-full bg-[#008080] p-[16px] rounded-[8px] border-none cursor-pointer mt-[4px]"

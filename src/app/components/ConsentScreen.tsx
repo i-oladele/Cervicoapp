@@ -6,7 +6,7 @@ import svgPaths from "../../imports/svg-34anl4iwwi";
 
 export function ConsentScreen({ onContinue }: { onContinue: () => void }) {
   const [agreed, setAgreed] = useState(false);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <div className="bg-[#f8fafc] size-full relative flex flex-col overflow-hidden">
@@ -21,12 +21,13 @@ export function ConsentScreen({ onContinue }: { onContinue: () => void }) {
           {t("consent.title")}
         </p>
 
+        <button className="mt-4 p-3 border rounded" onClick={()=>{if(!('speechSynthesis' in window))return;const text=Array.from(document.querySelectorAll('[data-consent] p, [data-consent] li')).map(e=>e.textContent).join(' ');const speech=new SpeechSynthesisUtterance(text);speech.lang=language==='yo'?'yo-NG':'en-NG';speechSynthesis.cancel();speechSynthesis.speak(speech);}}>{language==='yo'?'Gbọ́ àlàyé':'Listen to this information'}</button>
         {/* Content */}
         <div
-          className="mt-[16px] text-[15px] text-black tracking-[-0.3px]"
+          data-consent className="mt-[16px] text-[17px] text-black tracking-[-0.3px]"
           style={{ fontFamily: "'Instrument Sans', sans-serif", fontWeight: 400 }}
         >
-          <p className="mb-4">{t("consent.intro")}</p>
+          <p className="mb-4">{t("consent.intro")} — Oyedero Lolade Comfort, University of Ibadan.</p>
 
           <p className="mb-1" style={{ fontWeight: 700 }}>{t("consent.purposeTitle")}</p>
           <p className="mb-4 whitespace-pre-line">{t("consent.purposeText")}</p>
@@ -68,6 +69,7 @@ export function ConsentScreen({ onContinue }: { onContinue: () => void }) {
         {/* Checkbox */}
         <div className="mt-[24px] flex gap-[8px] items-start">
           <button
+            role="checkbox" aria-checked={agreed} aria-label={t("consent.checkbox")}
             onClick={() => setAgreed(!agreed)}
             className="bg-transparent border-none cursor-pointer p-0 shrink-0"
           >

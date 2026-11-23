@@ -26,7 +26,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
   const { user, progress } = useUser();
   const [screeningData, setScreeningData] = useState<any>(null);
   const [screeningCompleted, setScreeningCompleted] = useState(false);
-  const [hasCheckedScreening, setHasCheckedScreening] = useState(false);
+  const [hasCheckedScreening, setHasCheckedScreening] = useState<boolean | null>(null);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
 
   // Fetch screening data on component mount
@@ -36,7 +36,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
         try {
           const screening = await getScreeningData(user.phone);
           setScreeningData(screening);
-          setHasCheckedScreening(false); // Default to No
+          setHasCheckedScreening(null);
           setScreeningCompleted(screening?.completed || false);
         } catch (error) {
           console.log("No screening data found:", error);
@@ -75,7 +75,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
               className="text-[28px] text-[#008080] tracking-[-1.4px]"
               style={{ ...fontInstrument, fontWeight: 600 }}
             >
-              {t("home.welcome")}
+              {t("home.welcome").replace(/,\s*$/, "")}
             </p>
             <p
               className="text-[24px] text-black tracking-[-1.2px] mt-[4px]"
@@ -96,7 +96,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
             {t("home.progress")}
           </p>
           <div className="flex gap-[16px] items-center">
-            <div className="flex-1 bg-black rounded-[12px] h-[6px]">
+            <div className="flex-1 bg-[#e0e0e0] rounded-[12px] h-[6px]">
               <div className="bg-[#9fe29a] h-[6px] rounded-[12px]" style={{ width: `${progressPercent}%` }} />
             </div>
             <p
@@ -203,7 +203,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
                   <button
                     onClick={() => setHasCheckedScreening(false)}
                     className={`p-[8px] rounded-[8px] border-none cursor-pointer flex-1 ${
-                      !hasCheckedScreening ? "bg-[#008080] text-white" : "bg-white text-black border border-gray-300"
+                      hasCheckedScreening === false ? "bg-[#008080] text-white" : "bg-white text-black border border-gray-300"
                     }`}
                   >
                     <p className="text-[15px] text-center" style={{ ...fontInstrument, fontWeight: 600 }}>
@@ -250,9 +250,9 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
 
           {/* Video Cards */}
           <div className="flex flex-col gap-[16px]">
-            <VideoCard videoId="rTViRKW4PIU" thumbnail={imgFrame193} />
+            {progress.baselineCompleted && <VideoCard videoId="rTViRKW4PIU" thumbnail={imgFrame193} />}
 
-            <VideoCard videoId="5ClJI3CeK_Q" thumbnail={imgFrame193} />
+            {progress.baselineCompleted && <VideoCard videoId="5ClJI3CeK_Q" thumbnail={imgFrame193} />}
 
             <button
               onClick={() => onNavigate("library")}

@@ -1,3 +1,4 @@
+import { savePushSubscription, disablePush } from "./api";
 import { useEffect } from "react";
 import { useUser } from "./UserContext";
 
@@ -30,7 +31,7 @@ export class PushNotificationManager {
   }
 
   // Initialize service worker and push subscription
-  async initialize(): Promise<boolean> {
+  async initialize(phone: string): Promise<boolean> {
     try {
       // Register service worker
       this.swRegistration = await navigator.serviceWorker.register('/sw.js');
@@ -50,7 +51,8 @@ export class PushNotificationManager {
         }
       }
 
-      return true;
+      await savePushSubscription(phone, this.subscription?.toJSON());
+      return !!this.subscription;
     } catch (error) {
       console.error('Push notification initialization failed:', error);
       return false;
@@ -64,7 +66,7 @@ export class PushNotificationManager {
     try {
       // In production, you'd get these from your push service (Firebase, OneSignal, etc.)
       const applicationServerKey = this.urlBase64ToUint8Array(
-        'BHQZEGALEQuASAzX6HMfnO7nvZAs545ePgt1mh2tGYpSptvdH7WTYYTiLXUpH9svd4NrECGx30JiTkss75t5EZU'
+        import.meta.env.VITE_VAPID_PUBLIC_KEY || ""
       );
 
       this.subscription = await this.swRegistration.pushManager.subscribe({
@@ -74,47 +76,7 @@ export class PushNotificationManager {
 
       console.log('User subscribed to push notifications');
       
-      // Send subscription to backend
-      await this.sendSubscriptionToBackend();
-    } catch (error) {
-      console.error('Push subscription failed:', error);
-    }
-  }
-
-  // Send subscription to backend
-  private async sendSubscriptionToBackend(): Promise<void> {
-    if (!this.subscription) return;
-
-    try {
-      const subscriptionData: PushSubscriptionData = {
-        endpoint: this.subscription.endpoint,
-        keys: {
-          p256dh: this.subscription.getKey('p256dh') 
-            ? btoa(String.fromCharCode(...new Uint8Array(this.subscription.getKey('p256dh')!)))
-            : '',
-          auth: this.subscription.getKey('auth')
-            ? btoa(String.fromCharCode(...new Uint8Array(this.subscription.getKey('auth')!)))
-            : ''
-        }
-      };
-
-      // Send to your backend
-      const response = await fetch('/api/push-subscription', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(subscriptionData),
-      });
-
-      if (response.ok) {
-        console.log('Push subscription sent to backend');
-      } else {
-        console.error('Failed to send subscription to backend');
-      }
-    } catch (error) {
-      console.error('Failed to send subscription to backend:', error);
-    }
+    } catch (error) { throw error; }
   }
 
   // Check if push notifications are supported
@@ -174,19 +136,20 @@ export function usePushNotifications() {
   const { user } = useUser();
 
   useEffect(() => {
-    if (user && PushNotificationManager.isSupported()) {
-      PushNotificationManager.getInstance().initialize();
+    if (user && PushNotificationManager.isSupported() && Notification.permission === "granted") {
+      PushNotificationManager.getInstance().initialize(user.phone);
     }
   }, [user]);
 
   const requestPermission = async (): Promise<boolean> => {
     if (!PushNotificationManager.isSupported()) return false;
     
-    const permission = await PushNotificationManager.requestPermission();
-    return permission === 'granted';
+    if (!user) return false;
+    return PushNotificationManager.getInstance().initialize(user.phone);
   };
 
   const unsubscribe = async (): Promise<void> => {
+    if(user) await disablePush(user.phone);
     await PushNotificationManager.getInstance().unsubscribe();
   };
 

@@ -21,7 +21,7 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
   const [age, setAge] = useState("");
   const [center, setCenter] = useState("");
   const [date, setDate] = useState("");
-  const [reminder, setReminder] = useState(true);
+  const [reminder, setReminder] = useState(false);
   const [saving, setSaving] = useState(false);
   const { t } = useLanguage();
   const { user } = useUser();
@@ -38,14 +38,14 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
             setAge(screening.age || "");
             setCenter(screening.center || "");
             setDate(screening.date || "");
-            setReminder(screening.reminder !== false); // Default to true
+            setReminder(screening.reminder === true); // Default to true
           }
           
           // If no age from screening, try to get from assessment
           if (!screening?.age || screening.age === "") {
             const assessment = await getAssessment(user.phone, "baseline");
             if (assessment && assessment.answers && assessment.answers.length > 0) {
-              const ageAnswer = assessment.answers[0];
+              const ageAnswer = assessment.answers["1"];
               if (ageAnswer) {
                 setAge(ageAnswer.toString());
               }
@@ -71,7 +71,7 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
             setAge(screening.age || "");
             setCenter(screening.center || "");
             setDate(screening.date || "");
-            setReminder(screening.reminder !== false);
+            setReminder(screening.reminder === true);
           }
         } catch (err) {
           console.log("Error fetching screening data:", err);
@@ -82,6 +82,8 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
   }, []);
 
   const handleSave = async () => {
+    if (!center || !date || date < [new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,"0"),String(new Date().getDate()).padStart(2,"0")].join("-")) { toast.error("Choose a centre and today or a future date"); return; }
+    if (reminder && (typeof Notification === "undefined" || Notification.permission !== "granted")) { toast.error("Enable push notifications before setting reminders"); return; }
     if (!user) {
       toast.error("Please log in first");
       return;
@@ -130,7 +132,7 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
             <p className="text-[14px] text-[#333]" style={fontInstrument}>{t("screening.age")}</p>
             <div className="bg-white rounded-[8px] border border-[#c6c6c6]">
               <input
-                type="number"
+                type="number" aria-label={t("screening.age")}
                 placeholder={t("screening.agePlaceholder")}
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
@@ -144,19 +146,15 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
           <div className="flex flex-col gap-[12px]">
             <p className="text-[14px] text-[#333]" style={fontInstrument}>{t("screening.center")}</p>
             <div className="relative bg-white rounded-[8px] border border-[#c6c6c6]">
-              <select
+              <select aria-label={t("screening.center")}
                 value={center}
                 onChange={(e) => setCenter(e.target.value)}
                 className="w-full p-[12px] pr-[40px] text-[16px] text-[#333] bg-transparent border-none appearance-none outline-none cursor-pointer"
                 style={fontInstrument}
               >
                 <option value="" disabled>{t("screening.centerPlaceholder")}</option>
-                <option value="oauthc-ife">{t("screening.center1")}</option>
-                <option value="uniosun-osogbo">{t("screening.center2")}</option>
-                <option value="specialist-osogbo">{t("screening.center3")}</option>
-                <option value="fountain-health">{t("screening.center4")}</option>
-                <option value="iremide-annex">{t("screening.center5")}</option>
-                <option value="fomwan-ogo-oluwa">{t("screening.center6")}</option>
+                <option value="asubiaro">State Specialist Hospital, Asubiaro, Osogbo</option>
+                <option value="oke-ogbo">State Hospital, Oke-Ogbo, Ile-Ife</option>
               </select>
               <ChevronDown className="absolute right-[12px] top-1/2 -translate-y-1/2 text-[#c6c6c6] pointer-events-none" size={24} />
             </div>
@@ -168,7 +166,7 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
             <DatePicker
               value={date}
               onChange={(d) => setDate(d)}
-              placeholder={t("screening.datePlaceholder")}
+              placeholder={t("screening.datePlaceholder")} disabled={{before: new Date(new Date().setHours(0,0,0,0))}}
             />
           </div>
 
@@ -176,7 +174,7 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
           <div className="flex items-center justify-between">
             <p className="text-[16px] text-[#333]" style={fontInstrument}>{t("screening.reminder")}</p>
             <button
-              onClick={() => setReminder(!reminder)}
+              role="switch" aria-checked={reminder} aria-label={t("screening.reminder")} onClick={() => setReminder(!reminder)}
               className={`w-[48px] h-[28px] rounded-full border-none cursor-pointer transition-colors relative ${
                 reminder ? "bg-[#008080]" : "bg-[#c6c6c6]"
               }`}

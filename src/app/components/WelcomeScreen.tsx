@@ -66,7 +66,7 @@ export function WelcomeScreen({ onGetStarted }: { onGetStarted: () => void }) {
             {t("welcome.selectLanguage")}
           </p>
           <div className="relative bg-white rounded-[8px] border border-[#c6c6c6]">
-            <select
+            <select aria-label={t("welcome.selectLanguage")}
               value={language}
               onChange={(e) => setLanguage(e.target.value as "en" | "yo")}
               className="w-full p-[12px] pr-[40px] text-[16px] text-[#333] bg-transparent border-none appearance-none outline-none cursor-pointer"

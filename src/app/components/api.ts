@@ -2,7 +2,9 @@ import { projectId, publicAnonKey } from "../../../utils/supabase/info";
 
 const BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-bcdc6876`;
 const LOCAL_BASE_URL = "http://localhost:3001/api";
-const USE_LOCAL_API = process.env.NODE_ENV === 'development';
+const USE_LOCAL_API = false;
+let sessionToken = "";
+export function clearSession() { sessionToken = ""; }
 
 const headers = {
   "Content-Type": "application/json",
@@ -16,13 +18,14 @@ const localHeaders = {
 async function request(path: string, options: RequestInit = {}) {
   const res = await fetch(`${BASE_URL}${path}`, {
     ...options,
-    headers: { ...headers, ...(options.headers || {}) },
+    headers: { ...headers, "X-Session-Token": sessionToken, ...(options.headers || {}) },
   });
   const data = await res.json();
   if (!res.ok) {
-    console.error(`API error at ${path}:`, data);
+    if (res.status === 401 && !path.startsWith("/auth/")) { clearSession(); window.dispatchEvent(new Event("session-expired")); }
     throw new Error(data.error || `Request failed with status ${res.status}`);
   }
+  if (data.sessionToken) sessionToken = data.sessionToken;
   return data;
 }
 
@@ -49,10 +52,10 @@ async function smartRequest(path: string, options: RequestInit = {}) {
 }
 
 // Auth
-export async function registerUser(phone: string, city: string, pin: string, language: string) {
+export async function registerUser(phone: string, city: string, pin: string, language: string, facility: string, participantCode: string, lga: string) {
   return request("/auth/register", {
     method: "POST",
-    body: JSON.stringify({ phone, city, pin, language }),
+    body: JSON.stringify({ phone, city, pin, language, facility, participantCode, lga }),
   });
 }
 
@@ -77,7 +80,8 @@ export async function saveScreening(phone: string, age: number, center: string, 
 }
 
 export async function getScreeningData(phone: string) {
-  return smartRequest(`/screening/${encodeURIComponent(phone)}`);
+  const result = await smartRequest(`/screening/${encodeURIComponent(phone)}`);
+  return result.screening ?? null;
 }
 
 export async function updateScreeningCompletion(phone: string, completed: boolean) {
@@ -88,10 +92,10 @@ export async function updateScreeningCompletion(phone: string, completed: boolea
 }
 
 // Assessment
-export async function saveAssessment(phone: string, type: "baseline" | "endline", score: number, total: number, answers: number[]) {
+export async function saveAssessment(phone: string, type: "baseline" | "endline", score: number, total: number, answers: Record<string, unknown>, questionnaireVersion: string) {
   return request("/assessment", {
     method: "POST",
-    body: JSON.stringify({ phone, type, score, total, answers }),
+    body: JSON.stringify({ phone, type, score, total, answers, questionnaireVersion }),
   });
 }
 
@@ -100,10 +104,10 @@ export async function getAssessment(phone: string, type: "baseline" | "endline")
 }
 
 // Modules completion
-export async function completeModules(phone: string) {
+export async function completeModules(phone: string, engagement: Record<string,number>) {
   return request("/modules/complete", {
     method: "POST",
-    body: JSON.stringify({ phone }),
+    body: JSON.stringify({ phone, engagement }),
   });
 }
 
@@ -150,3 +154,6 @@ export async function getUserDataAdmin(phone: string) {
 export async function getAnalytics() {
   return request("/admin/analytics");
 }
+export async function resetPin(phone:string,code:string,pin:string){return request('/auth/recovery/reset',{method:'POST',body:JSON.stringify({phone,code,pin})});}
+
+export async function disablePush(phone:string){return request('/push-subscription/disable',{method:'POST',body:JSON.stringify({phone})});}

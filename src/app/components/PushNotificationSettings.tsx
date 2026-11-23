@@ -11,7 +11,7 @@ export function PushNotificationSettings() {
   const [isEnabled, setIsEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useUser();
-  const { isSupported, requestPermission, getPermissionStatus } = usePushNotifications();
+  const { isSupported, requestPermission, unsubscribe, getPermissionStatus } = usePushNotifications();
 
   useEffect(() => {
     checkPermissionStatus();
@@ -20,7 +20,9 @@ export function PushNotificationSettings() {
   const checkPermissionStatus = async () => {
     if (isSupported) {
       const status = await getPermissionStatus();
-      setIsEnabled(status === 'granted');
+      const registration = await navigator.serviceWorker.getRegistration();
+      const subscription = await registration?.pushManager.getSubscription();
+      setIsEnabled(status === 'granted' && !!subscription);
     }
   };
 
@@ -39,10 +41,9 @@ export function PushNotificationSettings() {
 
     try {
       if (isEnabled) {
-        // Disable notifications
-        // Note: Browser doesn't support programmatic unsubscription
-        // User would need to disable through browser settings
-        toast.info("To disable notifications, please use your browser settings");
+        await unsubscribe();
+        setIsEnabled(false);
+        toast.success("Push notifications disabled");
       } else {
         // Enable notifications
         const granted = await requestPermission();
@@ -100,7 +101,7 @@ export function PushNotificationSettings() {
         </div>
         
         <button
-          onClick={handleToggle}
+          role="switch" aria-checked={isEnabled} aria-label="Push notifications" onClick={handleToggle}
           disabled={isLoading}
           className={`relative w-12 h-6 rounded-full transition-colors ${
             isEnabled ? "bg-[#008080]" : "bg-gray-300"

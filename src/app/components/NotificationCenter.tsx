@@ -38,7 +38,7 @@ export function NotificationCenter() {
     <div className="relative">
       {/* Notification Bell */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        aria-label="Notifications and screening reminders" aria-expanded={isOpen} onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
       >
         <Bell size={20} className="text-gray-600" />

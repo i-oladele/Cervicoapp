@@ -1,10 +1,12 @@
-import { useState } from "react";
+import anatomyImage from "../../assets/uterineAnatomy.png";
+import { useState, useEffect, useRef } from "react";
 import imgRectangle9 from "figma:asset/11e9dc8cfd91c7f92bfa51da10baea8e03cc9379.png";
 import { BackgroundLogo } from "./BackgroundLogo";
 import { BottomNav } from "./BottomNav";
 import { useLanguage } from "./LanguageContext";
 import { useUser } from "./UserContext";
 import { VideoCard } from "./VideoCard";
+import { toast } from "sonner";
 import { ChevronDown } from "lucide-react";
 import { completeModules } from "./api";
 
@@ -15,112 +17,51 @@ interface LibraryScreenProps {
 }
 
 export function LibraryScreen({ onNavigate }: LibraryScreenProps) {
+  const [saving,setSaving]=useState(false);
   const [currentModule, setCurrentModule] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [slidesCompleted, setSlidesCompleted] = useState(false);
   const [videosWatched, setVideosWatched] = useState<Set<string>>(new Set());
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const entered=useRef(Date.now());
+  const timing=useRef<Record<string,number>>({});
+  useEffect(()=>{entered.current=Date.now();return ()=>{timing.current[currentModule]=(timing.current[currentModule]||0)+Date.now()-entered.current;if ('speechSynthesis' in window) speechSynthesis.cancel();};},[currentModule]);
   const { progress, setProgress, user } = useUser();
 
   const faqKeys = [1, 2, 3, 4, 5, 6, 7, 8];
 
-  const modules = [
-    {
-      title: "Unit 1: Introduction to Cervical Cancer",
-      content: [
-        { heading: "Definition", text: "Cervical cancer is a disease that occurs when abnormal cells grow uncontrollably in the cervix and form a tumor." },
-        { heading: "Basic Anatomy of the Cervix", text: "The cervix is the lower, narrow part of the uterus (womb).\n\nIt connects the uterus to the vagina and plays an important role in:\n\n• Menstruation\n• Pregnancy\n• Childbirth" },
-        { heading: "What is Cervical Cancer?", text: "Cervical cancer develops when cells in the cervix change (become abnormal) and continue growing without control. These changes usually happen slowly over many years." },
-        { heading: "Why is Cervical Cancer a Public Health Problem (Especially in Nigeria)?", text: "• It is one of the most common cancers affecting women.\n• Many women are diagnosed at late stages.\n• Screening services are not widely accessed.\n• Awareness is still low in many communities.\n• Early detection can prevent most deaths." },
-        { heading: "", text: "" }
-      ],
-    },
-    {
-      title: "Unit 2: Causes and Risk Factors",
-      content: [
-        { heading: "Main Cause", text: "Cervical cancer is mainly caused by persistent infection with Human Papillomavirus (HPV)." },
-        { heading: "Key Risk Factors", text: "• Persistent HPV Infection\n  - HPV is a common virus spread through sexual contact.\n  - Long-term infection can lead to cervical cancer.\n\n• Early Sexual Debut\n  - Starting sexual activity at a very young age increases risk.\n\n• Multiple Sexual Partners\n  - Increases exposure to HPV.\n\n• Smoking\n  - Weakens the immune system and increases cancer risk.\n\n• Immunosuppression (e.g., HIV)\n  - Reduced immunity makes it harder to fight HPV infection.\n\n• Lack of Screening\n  - Without regular screening, abnormal changes go undetected." },
-        { heading: "Myth vs Fact", text: "Myth: Cervical cancer is caused by witchcraft or spiritual attacks.\nFact: Cervical cancer is caused mainly by persistent HPV infection.\n\nMyth: Only women with many partners get cervical cancer.\nFact: Any sexually active woman can be at risk.\n\nMyth: If I feel fine, I cannot have cervical cancer.\nFact: Early stages usually have no symptoms." }
-      ],
-    },
-    {
-      title: "Unit 3: Signs and Symptoms",
-      content: [
-        { heading: "Important Note", text: "In early stages, cervical cancer usually has no symptoms. This is why screening is important." },
-        { heading: "Possible Symptoms (Later Stages)", text: "• Abnormal vaginal bleeding\n  - Between periods\n  - After menopause\n  - After sexual intercourse\n\n• Post-coital bleeding\n  - Bleeding after sexual activity.\n\n• Foul-smelling vaginal discharge\n\n• Pelvic pain" },
-        { heading: "Key Message", text: "Symptoms often appear late.\nDo not wait for symptoms before going for screening." }
-      ],
-    },
-    {
-      title: "Unit 4: Prevention Strategies",
-      content: [
-        { heading: "Prevention Overview", text: "Cervical cancer is largely preventable." },
-        { heading: "1. HPV Vaccination", text: "• Protects against the main types of HPV that cause cervical cancer.\n• Most effective before sexual activity begins.\n• Available in many health facilities and immunization programs." },
-        { heading: "2. Regular Screening", text: "• Detects early cell changes before they become cancer.\n• Can prevent cancer completely if treated early." },
-        { heading: "3. Safe Sexual Practices", text: "• Limiting number of sexual partners.\n• Using protection (condoms reduce risk but do not eliminate it)." },
-        { heading: "4. Smoking Cessation", text: "• Avoid tobacco use." }
-      ],
-    },
-    {
-      title: "Unit 5: Screening Methods",
-      content: [
-        {heading: "Screening Methods", text: ""},
-        { heading: "1. Pap Smear (Cytology)", text: "What it is:\nA screening test that checks cervical cells for precancerous or cancerous changes.\n\nHow it is done:\nA healthcare provider inserts a speculum to visualize the cervix.\nCells are gently collected using a brush or spatula.\nThe sample is sent to a laboratory for analysis.\n\nWho should be screened in Nigeria:\nWomen aged 21–65 years\nScreening is recommended regardless of marital status or sexual history once age eligibility is met.\nWomen with HIV or other immunocompromising conditions may require more frequent screening as advised by a clinician.\n\nFrequency:\nEvery 3 years if results are normal.\nMay vary depending on results and clinical history." }
-      ],
-    },
-    {
-      title: "Unit 6: HPV DNA Test (Primary HPV Screening)",
-      content: [
-        {heading: "Screening Methods", text: ""},
-        { heading: "2. HPV DNA Test (Primary HPV Screening)", text: "What it is:\nA test that detects high-risk HPV types responsible for most cervical cancers.\n\nHow it is done:\nSame sampling procedure as a Pap smear (speculum examination).\nThe cervical sample is tested for HPV DNA in a laboratory.\n\nWho should be screened in Nigeria:\nWomen within the recommended screening age group (commonly 25–65 years, depending on program availability).\nIncreasingly recommended as the preferred primary screening method where resources allow.\n\nFrequency:\nEvery 5 years if result is negative.\nFollow-up depends on results." }
-      ],
-    },
-    {
-      title: "Unit 7: Visual Inspection with Acetic Acid (VIA)",
-      content: [
-        {heading: "Screening Methods", text: ""},
-        { heading: "3. Visual Inspection with Acetic Acid (VIA)", text: "What it is:\nA low-cost cervical cancer screening method widely used in Nigeria, especially in primary healthcare settings.\n\nHow it is done:\nA trained healthcare provider applies diluted acetic acid (vinegar solution) to the cervix.\nAfter a short waiting period, the cervix is inspected visually.\nAreas that turn white (acetowhite lesions) may indicate abnormal changes.\n\nWho should be screened in Nigeria:\nWomen within the national recommended screening age group (commonly 30–49 years in many public screening programs).\nVIA is often used in settings where laboratory services are limited.\n\nWho performs VIA:\nTrained healthcare workers (nurses, midwives, doctors) within approved screening programs.\n\nFrequency:\nTypically every 3–5 years, depending on screening program and national/state protocol." }
-      ],
-    },
-    {
-      title: "Unit 8: Overcoming Barriers",
-      content: [
-        { heading: "Common Barriers", text: "• Fear of pain\n  - Screening may cause mild discomfort, but it is not usually painful.\n\n• Embarrassment\n  - Healthcare providers are trained professionals.\n\n• Cost concerns\n  - Some facilities offer free or subsidized screening.\n\n• Cultural beliefs\n  - Cervical cancer is a medical condition, not spiritual.\n\n• Lack of time\n  - Screening takes only a few minutes." },
-        { heading: "Be Motivated", text: "• Your health matters.\n• Early detection saves lives.\n• Screening today can prevent cancer tomorrow.\n• Do not wait for symptoms." }
-      ],
-    },
-    {
-      title: "Unit 9: Call to Action (Cues to Action)",
-      content: [
-        { heading: "Now that you are aware...", text: "Cervical cancer is preventable.\nIt develops slowly.\nIt often has no early symptoms.\nRegular screening and vaccination can save lives.\n\nTake action today." },
-        { heading: "Pick a screening date today", text: "" },
-        { heading: "Complete Your Learning", text: "Click the Complete button when you are done reading all the educational content." }
-      ],
-    },
-  ];
+  const modules = [1,2,3].flatMap(n => Array.from({length:n===1?6:n===2?4:3},(_,i)=>({title:t(`library.m${n}.title`),content:[{heading:t(`library.m${n}.h${i+1}`),text:t(`library.m${n}.t${i+1}`)}]})));
 
+  modules.push(...(language==='yo' ? [
+ {title:'Ìmúrasílẹ̀',content:[{heading:'Ṣáájú àyẹ̀wò',text:'Béèrè lọ́wọ́ ilé ìwòsàn bí o ṣe yẹ kí o múra sílẹ̀ fún irú àyẹ̀wò rẹ. Sọ bí o bá lóyún tàbí tí o ń rí ẹ̀jẹ̀. O lè béèrè fún àṣírí, àlàyé tàbí kí wọ́n dákẹ́ dúró nígbàkúgbà.'}]},
+ {title:'Àbájáde',content:[{heading:'Lẹ́yìn àyẹ̀wò',text:'Àbájáde tí kò déédé kò túmọ̀ sí pé o ní jẹjẹrẹ. Ó lè nílò àyẹ̀wò mìíràn tàbí ìtọ́jú. Béèrè nígbà tí àbájáde yóò dé, kí o sì padà fún ìtọ́jú tí wọ́n bá ní kí o ṣe.'}]},
+ {title:'Ibi àyẹ̀wò',content:[{heading:'Ilé ìwòsàn ìwádìí',text:'State Specialist Hospital, Asubiaro, Osogbo àti State Hospital, Oke-Ogbo, Ile-Ife. Béèrè lọ́wọ́ olùrànlọ́wọ́ ìwádìí nípa owó, ọjọ́ àti àkókò àyẹ̀wò. VIA ń lo acetic acid; VILI ń lo Lugol’s iodine láti wo àyípadà ọrùn ilé-ọmọ.'}]}
+ ] : [
+ {title:'Prepare for screening',content:[{heading:'Before your visit',text:'Ask the clinic how to prepare for your particular test. Tell staff if you are pregnant or bleeding. You can ask for privacy, an explanation or a pause at any time.'}]},
+ {title:'After screening',content:[{heading:'Understanding results',text:'An abnormal result does not mean you have cancer. You may need further tests or treatment. Ask when results will be ready and attend the follow-up recommended by the clinic.'}]},
+ {title:'Where to get screened',content:[{heading:'Study facilities and visual inspection',text:'State Specialist Hospital, Asubiaro, Osogbo and State Hospital, Oke-Ogbo, Ile-Ife. Ask your research assistant to confirm costs, clinic days and opening hours before travelling. VIA uses acetic acid; VILI uses Lugol’s iodine to look for cervical changes.'}]}
+ ]));
   const module = modules[currentModule];
   const isLastSlide = currentModule === modules.length - 1;
 
   const markModulesComplete = async () => {
+    if(saving)return;setSaving(true);
     const updated = { ...progress, modulesCompleted: true };
-    setProgress(updated);
+
     // Persist to server
     if (user) {
       try {
-        await completeModules(user.phone);
+        const result = await completeModules(user.phone, {...timing.current,[currentModule]:(timing.current[currentModule]||0)+Date.now()-entered.current});
+        setProgress({...updated,...result.progress});
+        setSlidesCompleted(true);
       } catch (err) {
-        console.error("Failed to persist modules completion:", err);
-      }
-    }
+        toast.error(language === "yo" ? "A kò lè fi ìparí pamọ́. Tún gbìyànjú." : "Could not save completion. Please retry.");
+      } finally {setSaving(false);}
+    } else {setSaving(false);}
   };
 
   const handleCompleteSlides = () => {
-    setSlidesCompleted(true);
-    // Check if both videos are also watched
-    if (videosWatched.size >= 2) {
-      markModulesComplete();
-    }
+    markModulesComplete();
   };
 
   const handleVideoPlay = (videoId: string) => {
@@ -128,11 +69,10 @@ export function LibraryScreen({ onNavigate }: LibraryScreenProps) {
     updated.add(videoId);
     setVideosWatched(updated);
     // Check if slides are also completed
-    if (slidesCompleted && updated.size >= 2) {
-      markModulesComplete();
-    }
+
   };
 
+  if (!progress.baselineCompleted) return <div className="size-full flex flex-col p-6 justify-center"><p>Complete your baseline assessment before opening the learning library.</p><button onClick={()=>onNavigate('assessment')}>{t('assessment.takeBaseline')}</button><BottomNav active="library" onNavigate={onNavigate}/></div>;
   return (
     <div className="bg-[#f8fafc] size-full relative flex flex-col overflow-hidden">
       <BackgroundLogo />
@@ -146,6 +86,7 @@ export function LibraryScreen({ onNavigate }: LibraryScreenProps) {
           {t("library.title")}
         </p>
 
+        <div className="px-6 mt-4"><h2 className="font-semibold">{module.title}</h2><img src={anatomyImage} alt={language==='yo'?'Àwòrán ilé-ọmọ àti ọrùn ilé-ọmọ':'Anatomy of the uterus and cervix'} className="max-h-40 mx-auto"/><button className="p-3 border rounded" onClick={()=>{if(!('speechSynthesis' in window))return;const utterance=new SpeechSynthesisUtterance(module.content.map(s=>s.heading+'. '+s.text).join(' '));utterance.lang=language==='yo'?'yo-NG':'en-NG';speechSynthesis.cancel();speechSynthesis.speak(utterance);}}>{language==='yo'?'Gbọ́':'Listen'}</button></div>
         {/* Content */}
         <div className="px-[24px] mt-[16px]">
           <div
@@ -208,7 +149,7 @@ export function LibraryScreen({ onNavigate }: LibraryScreenProps) {
             className={`p-[8px] rounded-[8px] border-none cursor-pointer flex items-center justify-center gap-[4px] ${
               isLastSlide && slidesCompleted ? "bg-black" : "bg-[#9fe29a]"
             }`}
-            disabled={isLastSlide && slidesCompleted}
+            disabled={saving || (isLastSlide && slidesCompleted)}
           >
             {isLastSlide && slidesCompleted && (
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

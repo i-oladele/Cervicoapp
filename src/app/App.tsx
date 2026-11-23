@@ -18,6 +18,8 @@ type Screen = "splash" | "welcome" | "consent" | "auth" | "home" | "library" | "
 export default function App() {
   const [screen, setScreen] = useState<Screen>("splash");
 
+  useEffect(()=>{const expire=()=>setScreen("auth");window.addEventListener("session-expired",expire);return ()=>window.removeEventListener("session-expired",expire);},[]);
+
   // Auto-advance from splash after 3 seconds
   useEffect(() => {
     if (screen === "splash") {
