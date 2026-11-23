@@ -1,0 +1,14 @@
+Automated PIN recovery
+
+The participant requests an SMS code to their registered Nigerian phone number, enters the six-digit code and chooses a new four-digit PIN. No staff-issued codes are used.
+
+Configure these server secrets using the Termii account dashboard:
+TERMII_API_KEY
+TERMII_BASE_URL (HTTPS account-specific base URL, without /api suffix)
+TERMII_SENDER_ID (approved sender ID)
+
+Reference: https://developer.termii.com/send-token/ and https://developer.termii.com/verify-token/
+
+Codes expire after five minutes, allow three attempts, and requests are limited to five per hour per phone. Reset revokes existing application sessions. No SMS costs have been incurred in testing; delivery has not been verified. This KV prototype does not provide atomic counters/consumption across simultaneous requests; production recovery should use transactional storage and gateway rate limiting before sensitive study use.
+
+Real-device checklist: registered number receives code; wrong and expired codes fail; successful code cannot be reused; old PIN fails and new PIN works; existing sessions expire. No real participant accounts should be used for destructive recovery tests.

@@ -157,3 +157,5 @@ export async function getAnalytics() {
 export async function resetPin(phone:string,code:string,pin:string){return request('/auth/recovery/reset',{method:'POST',body:JSON.stringify({phone,code,pin})});}
 
 export async function disablePush(phone:string){return request('/push-subscription/disable',{method:'POST',body:JSON.stringify({phone})});}
+
+export async function requestPinRecovery(phone:string){return request('/auth/recovery/request',{method:'POST',body:JSON.stringify({phone})});}

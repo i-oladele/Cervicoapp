@@ -29,7 +29,7 @@ async function pinHash(pin: string, salt: string) {
 }
 async function issueSession(phone: string) {
  const token=crypto.randomUUID()+crypto.randomUUID();
- await kv.set(`session:${token}`,{phone,expiresAt:Date.now()+30*60*1000});
+ await kv.set(`session:${token}`,{phone,issuedAt:Date.now(),expiresAt:Date.now()+30*60*1000});
  return token;
 }
 app.use('/make-server-bcdc6876/*',async(c,next)=>{
@@ -40,6 +40,8 @@ app.use('/make-server-bcdc6876/*',async(c,next)=>{
  const token=c.req.header('X-Session-Token');
  const session=token?await kv.get(`session:${token}`):null;
  if(!session||session.expiresAt<Date.now())return c.json({error:'Session expired. Please log in again.'},401);
+ const profile=await kv.get(`user:${session.phone}:profile`);
+ if(profile?.sessionsRevokedAt && (!session.issuedAt||session.issuedAt<=profile.sessionsRevokedAt))return c.json({error:'Session expired. Please log in again.'},401);
  const parts=path.split('/');
  let phone:string|undefined;
  if(c.req.method==='GET') {
@@ -142,19 +144,39 @@ app.post("/make-server-bcdc6876/auth/login", async (c) => {
   }
 });
 
-app.post('/make-server-bcdc6876/auth/recovery/issue',async(c)=>{
- const secret=Deno.env.get('RESEARCH_ADMIN_SECRET');
- if(!secret||c.req.header('Authorization')!==`Bearer ${secret}`)return c.json({error:'Access denied'},403);
- const {phone}=await c.req.json();if(!await kv.get(`user:${phone}:profile`))return c.json({error:'Account not found'},404);
- const code=crypto.randomUUID();await kv.set(`recovery:${phone}`,{hash:await pinHash(code,phone),expiresAt:Date.now()+15*60000});
- return c.json({code,expiresInMinutes:15});
+async function termii(path:string,body:Record<string,unknown>) {
+ const base=Deno.env.get('TERMII_BASE_URL'),key=Deno.env.get('TERMII_API_KEY');
+ if(!base||!key||!base.startsWith('https://'))throw new Error('SMS recovery is not configured');
+ const response=await fetch(`${base.replace(/\/$/,'')}/api/sms/otp/${path}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,api_key:key}),signal:AbortSignal.timeout(15000)});
+ if(!response.ok)throw new Error('SMS service unavailable');return response.json();
+}
+app.post('/make-server-bcdc6876/auth/recovery/request',async(c)=>{
+ const {phone}=await c.req.json();if(!/^\+234\d{10}$/.test(phone||''))return c.json({error:'Enter a valid Nigerian phone number'},400);
+ if(!Deno.env.get('TERMII_API_KEY')||!Deno.env.get('TERMII_BASE_URL')||!Deno.env.get('TERMII_SENDER_ID'))return c.json({error:'SMS recovery is not configured yet'},503);
+ const previous=await kv.get(`recovery:${phone}`);
+ if(previous?.requestedAt>Date.now()-60000)return c.json({error:'Wait one minute before requesting another code'},429);
+ const window=await kv.get(`recovery-limit:${phone}`)||{start:Date.now(),count:0};
+ if(window.start<Date.now()-3600000){window.start=Date.now();window.count=0;}
+ if(window.count>=5)return c.json({error:'Too many requests. Try again later.'},429);
+ window.count++;await kv.set(`recovery-limit:${phone}`,window);
+ const profile=await kv.get(`user:${phone}:profile`);
+ if(profile){try{
+ const result=await termii('send',{pin_type:'NUMERIC',to:phone.slice(1),from:Deno.env.get('TERMII_SENDER_ID'),channel:'dnd',pin_attempts:3,pin_time_to_live:5,pin_length:6,pin_placeholder:'<code>',message_text:'Your CerviHealthCoApp recovery code is <code>. Expires in 5 minutes. Do not share it.'});
+ const pinId=result.pinId||result.pin_id;if(!pinId)throw new Error('Missing verification reference');
+ await kv.set(`recovery:${phone}`,{pinId,requestedAt:Date.now(),expiresAt:Date.now()+300000,attempts:0});
+ }catch{return c.json({error:'Unable to send code. Please try again later.'},502);}}
+ return c.json({success:true,message:'If this number is registered, a recovery code has been sent.'});
 });
 app.post('/make-server-bcdc6876/auth/recovery/reset',async(c)=>{
  const {phone,code,pin}=await c.req.json();
- if(!/^\d{4}$/.test(pin||'')||typeof code!=='string')return c.json({error:'Enter recovery code and four-digit PIN'},400);
+ if(!/^\+234\d{10}$/.test(phone||'')||!/^\d{4}$/.test(pin||'')||!/^\d{6}$/.test(code||''))return c.json({error:'Enter phone number, six-digit recovery code and new four-digit PIN'},400);
  const recovery=await kv.get(`recovery:${phone}`);
- if(!recovery||recovery.expiresAt<Date.now()||await pinHash(code,phone)!==recovery.hash)return c.json({error:'Invalid or expired recovery code'},400);
+ if(!recovery?.pinId||recovery.expiresAt<Date.now()||recovery.attempts>=3)return c.json({error:'Invalid or expired recovery code'},400);
+ recovery.attempts++;await kv.set(`recovery:${phone}`,recovery);
+ let result;try{result=await termii('verify',{pin_id:recovery.pinId,pin:code});}catch{return c.json({error:'Unable to verify code. Please try again.'},502);}
+ if(String(result.verified).toLowerCase()!=='true')return c.json({error:'Invalid or expired recovery code'},400);
  const salt=crypto.randomUUID();await kv.set(`user:${phone}:pin`,{salt,hash:await pinHash(pin,salt)});await kv.del(`recovery:${phone}`);await kv.set(`user:${phone}:loginAttempts`,{count:0,until:0});
+ const profile=await kv.get(`user:${phone}:profile`);profile.sessionsRevokedAt=Date.now();await kv.set(`user:${phone}:profile`,profile);
  return c.json({success:true});
 });
 

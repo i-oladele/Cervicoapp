@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { BackgroundLogo } from "./BackgroundLogo";
 import { useLanguage } from "./LanguageContext";
 import { useUser } from "./UserContext";
-import { registerUser, loginUser, resetPin } from "./api";
+import { registerUser, loginUser, resetPin, requestPinRecovery } from "./api";
 
 type AuthTab = "register" | "login";
 
@@ -334,7 +334,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
             </div>
 
             <button type="button" onClick={()=>setRecovering(!recovering)}>Forgot PIN?</button>
-            {recovering&&<div><p>Ask your study research assistant to verify your identity and issue a recovery code. It expires after 15 minutes.</p><label>Recovery code<input className="w-full p-3 border" value={recoveryCode} onChange={e=>setRecoveryCode(e.target.value)}/></label><p>Enter your new four-digit PIN in the PIN boxes above.</p><button type="button" disabled={loading} onClick={async()=>{setLoading(true);try{await resetPin(phone.replace(/\s/g,"").replace(/^0/,"+234"),recoveryCode,pin.join(""));toast.success("PIN reset. You can now log in.");setRecovering(false);setRecoveryCode("");}catch(e:any){toast.error(e.message);}finally{setLoading(false);}}}>Reset PIN</button></div>}
+            {recovering&&<div><p>Request a six-digit recovery code by SMS to your registered phone. The code expires after five minutes.</p><button type="button" disabled={loading} onClick={async()=>{setLoading(true);try{await requestPinRecovery(phone.replace(/\s/g,"").replace(/^0/,"+234"));toast.success("If registered, a code has been sent to your phone.");}catch(e:any){toast.error(e.message);}finally{setLoading(false);}}}>Send recovery code</button><label>Recovery code<input inputMode="numeric" autoComplete="one-time-code" maxLength={6} className="w-full p-3 border" value={recoveryCode} onChange={e=>setRecoveryCode(e.target.value)}/></label><p>Enter your new four-digit PIN in the PIN boxes above.</p><button type="button" disabled={loading} onClick={async()=>{setLoading(true);try{await resetPin(phone.replace(/\s/g,"").replace(/^0/,"+234"),recoveryCode,pin.join(""));toast.success("PIN reset. You can now log in.");setRecovering(false);setRecoveryCode("");}catch(e:any){toast.error(e.message);}finally{setLoading(false);}}}>Reset PIN</button></div>}
             {/* Login Button */}
             <button type="button"
               onClick={handleSubmit}
