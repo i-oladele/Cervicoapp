@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLanguage } from "./LanguageContext";
 import { Play } from "lucide-react";
 
 interface VideoCardProps {
@@ -8,6 +9,8 @@ interface VideoCardProps {
 }
 
 export function VideoCard({ videoId, thumbnail, onPlay }: VideoCardProps) {
+  const {language}=useLanguage();
+  const title=language === "yo" ? "Fídíò ẹ̀kọ́ nípa jẹjẹrẹ ọrùn ilé-ọmọ" : "Cervical cancer education video";
   const [isPlaying, setIsPlaying] = useState(false);
 
   const handlePlay = () => {
@@ -18,7 +21,7 @@ export function VideoCard({ videoId, thumbnail, onPlay }: VideoCardProps) {
   return (
     <div className="relative h-[192px] rounded-[8px] overflow-hidden bg-black">
       {isPlaying ? (
-        <iframe title="Cervical cancer education"
+        <iframe title={title}
           className="absolute inset-0 size-full border-none"
           src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
           allow="autoplay; encrypted-media; fullscreen"
@@ -26,12 +29,12 @@ export function VideoCard({ videoId, thumbnail, onPlay }: VideoCardProps) {
         />
       ) : (
         <button
-          aria-label="Play cervical cancer education video"
+          aria-label={title}
           onClick={handlePlay}
           className="absolute inset-0 size-full border-none p-0 cursor-pointer bg-transparent"
         >
           <img
-            alt="Educational video"
+            alt=""
             className="absolute inset-0 max-w-none object-cover size-full"
             src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
           />

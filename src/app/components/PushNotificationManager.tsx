@@ -34,7 +34,8 @@ export class PushNotificationManager {
   async initialize(phone: string): Promise<boolean> {
     try {
       // Register service worker
-      this.swRegistration = await navigator.serviceWorker.register('/sw.js');
+      await navigator.serviceWorker.register('/sw.js');
+      this.swRegistration = await navigator.serviceWorker.ready;
       console.log('Service Worker registered');
 
       // Check existing subscription
@@ -81,7 +82,7 @@ export class PushNotificationManager {
 
   // Check if push notifications are supported
   static isSupported(): boolean {
-    return 'serviceWorker' in navigator && 'PushManager' in window;
+    return typeof window !== 'undefined' && window.isSecureContext && 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window;
   }
 
   // Check permission status

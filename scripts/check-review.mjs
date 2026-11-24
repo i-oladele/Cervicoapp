@@ -17,7 +17,7 @@ assert.equal(notification.title,'Ìránnilétí àyẹ̀wò');assert.equal(notif
 await build({entryPoints:['supabase/functions/server/index.ts'],bundle:true,write:false,platform:'neutral',external:['npm:*','jsr:*']});
 
 // Translations, library content and review regressions
-const stubReact={name:'stub-react',setup(b){b.onResolve({filter:/^react(\/jsx-runtime)?$/},a=>({path:a.path,namespace:'stub'}));b.onLoad({filter:/.*/,namespace:'stub'},()=>({contents:'export const createContext=()=>({});export const useContext=()=>({});export const useState=v=>[v,()=>{}];export const jsx=()=>null;export const jsxs=()=>null;export const Fragment=null;',loader:'js'}));}};
+const stubReact={name:'stub-react',setup(b){b.onResolve({filter:/^react(\/jsx-runtime)?$/},a=>({path:a.path,namespace:'stub'}));b.onLoad({filter:/.*/,namespace:'stub'},()=>({contents:'export const createContext=()=>({});export const useContext=()=>({});export const useEffect=()=>{};export const useState=v=>[v,()=>{}];export const jsx=()=>null;export const jsxs=()=>null;export const Fragment=null;',loader:'js'}));}};
 const load=async entry=>{const out=await build({entryPoints:[entry],bundle:true,write:false,format:'esm',platform:'neutral',jsx:'automatic',plugins:[stubReact]});return import('data:text/javascript;base64,'+Buffer.from(out.outputFiles[0].text).toString('base64'));};
 const {translations}=await load('src/app/components/LanguageContext.tsx');
 const missingYo=Object.keys(translations.en).filter(k=>!translations.yo[k]);

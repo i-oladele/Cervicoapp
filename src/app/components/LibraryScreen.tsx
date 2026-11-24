@@ -1,3 +1,4 @@
+import { narrate } from "../speech";
 import anatomyImage from "../../assets/uterineAnatomy.webp";
 import { useState, useEffect, useRef } from "react";
 import imgRectangle9 from "figma:asset/11e9dc8cfd91c7f92bfa51da10baea8e03cc9379.png";
@@ -53,17 +54,14 @@ export function LibraryScreen({ onNavigate }: LibraryScreenProps) {
   const SlideIcon = icons[slide.icon];
   const facilityText = (f: (typeof screeningFacilities)[number]) => f.details[language] || f.details.en || t("library.facilityFallback");
 
-  const listen = () => {
+  const listen = async () => {
     if (!("speechSynthesis" in window)) {
       toast.error(t("library.listenUnsupported"));
       return;
     }
     const parts = [slide.heading[language], slide.body[language]];
     if (slide.action === "facilities") screeningFacilities.forEach((f) => parts.push(f.name, facilityText(f)));
-    const utterance = new SpeechSynthesisUtterance(parts.join(". "));
-    utterance.lang = language === "yo" ? "yo-NG" : "en-NG";
-    speechSynthesis.cancel();
-    speechSynthesis.speak(utterance);
+    try {await narrate(parts.join(". "),language);} catch {toast.error(t('library.listenUnsupported'));}
   };
 
   const markModulesComplete = async () => {

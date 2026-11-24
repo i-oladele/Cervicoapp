@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { narrate } from "../speech";
+import { toast } from "sonner";
+import { useState, useEffect } from "react";
 import { BackgroundLogo } from "./BackgroundLogo";
 import { Square } from "lucide-react";
 import { useLanguage } from "./LanguageContext";
@@ -8,6 +10,7 @@ import { studyInfo } from "../studyInfo";
 export function ConsentScreen({ onContinue }: { onContinue: () => void }) {
   const [agreed, setAgreed] = useState(false);
   const { t, language } = useLanguage();
+  useEffect(()=>()=>{if("speechSynthesis" in window) speechSynthesis.cancel();},[]);
   const hasContact = !!(studyInfo.researcherPhone || studyInfo.researcherEmail);
   const hasEthics = !!(studyInfo.ethicsCommittee || studyInfo.ethicsApprovalNumber);
 
@@ -24,7 +27,7 @@ export function ConsentScreen({ onContinue }: { onContinue: () => void }) {
           {t("consent.title")}
         </p>
 
-        <button className="mt-4 p-3 border rounded" onClick={()=>{if(!('speechSynthesis' in window))return;const text=Array.from(document.querySelectorAll('[data-consent] p, [data-consent] li')).map(e=>e.textContent).join(' ');const speech=new SpeechSynthesisUtterance(text);speech.lang=language==='yo'?'yo-NG':'en-NG';speechSynthesis.cancel();speechSynthesis.speak(speech);}}>{language==='yo'?'Gbọ́ àlàyé':'Listen to this information'}</button>
+        <button className="mt-4 p-3 border rounded" onClick={async()=>{const text=Array.from(document.querySelectorAll('[data-consent] p, [data-consent] li')).map(e=>e.textContent).join(' ');try{await narrate(text,language);}catch{toast.error(t('library.listenUnsupported'));}}}>{language==='yo'?'Gbọ́ àlàyé':'Listen to this information'}</button>
         {/* Content */}
         <div
           data-consent className="mt-[16px] text-[17px] text-black tracking-[-0.3px]"

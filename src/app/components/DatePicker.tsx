@@ -47,6 +47,7 @@ export function DatePicker({ value, onChange, placeholder, disabled }: DatePicke
     <div ref={containerRef} className="relative w-full">
       {/* Trigger */}
       <button
+        aria-expanded={open} aria-haspopup="dialog" aria-label={t("screening.date")}
         type="button"
         onClick={() => setOpen(!open)}
         className="w-full bg-white rounded-[8px] border border-[#c6c6c6] p-[12px] pr-[40px] text-left cursor-pointer flex items-center"
@@ -65,7 +66,7 @@ export function DatePicker({ value, onChange, placeholder, disabled }: DatePicke
 
       {/* Calendar Dropdown */}
       {open && (
-        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 bg-white rounded-[12px] shadow-[0px_8px_24px_rgba(0,0,0,0.15)] border border-[#e5e5e5] p-[12px]">
+        <div role="dialog" aria-label={t("screening.date")} className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 bg-white rounded-[12px] shadow-[0px_8px_24px_rgba(0,0,0,0.15)] border border-[#e5e5e5] p-[12px]">
           <DayPicker
             mode="single"
             selected={selected}

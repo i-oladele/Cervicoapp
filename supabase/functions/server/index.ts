@@ -27,6 +27,11 @@ async function pinHash(pin: string, salt: string) {
  const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:new TextEncoder().encode(salt),iterations:100000,hash:'SHA-256'},key,256);
  return Array.from(new Uint8Array(bits),b=>b.toString(16).padStart(2,'0')).join('');
 }
+function lagosDate(now=new Date()) {
+ const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Lagos',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
+ const part=(type:string)=>parts.find(p=>p.type===type)!.value;
+ return `${part('year')}-${part('month')}-${part('day')}`;
+}
 function newRecoveryCode() {
  const bytes=crypto.getRandomValues(new Uint8Array(16));
  return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('').toUpperCase().match(/.{4}/g)!.join('-');
@@ -307,14 +312,17 @@ app.post("/make-server-bcdc6876/screening", async (c) => {
       return c.json({ error: "Phone, age, center, and date are required" }, 400);
     }
 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date < new Date().toISOString().slice(0,10)) return c.json({error:'Choose today or a future date'},400);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date < lagosDate() || !Number.isFinite(Date.parse(date)) || new Date(date).toISOString().slice(0,10)!==date) return c.json({error:'Choose today or a future date'},400);
+    if(!['asubiaro','oke-ogbo'].includes(center)||!Number.isInteger(Number(age))||Number(age)<18||Number(age)>120||typeof reminder!=='boolean')return c.json({error:'Invalid appointment details'},400);
+    if(reminder && !await kv.get(`user:${phone}:push-subscription`))return c.json({error:'Enable push notifications before saving reminders'},400);
+    const previous=await kv.get(`user:${phone}:screening`);
     const screeningData = {
       age,
       center,
       date,
       reminder: reminder || false,
-      completed: false,
-      completedAt: null,
+      completed: previous?.date===date && previous?.center===center ? previous.completed===true : false,
+      completedAt: previous?.date===date && previous?.center===center ? previous.completedAt || null : null,
       createdAt: new Date().toISOString(),
     };
 
@@ -420,7 +428,7 @@ async function deliver(subscription:any, payload:any) {
 }
 app.post('/make-server-bcdc6876/reminders/run',async(c)=>{
  const records=await kv.getByPrefix('user:');let accepted=0,failed=0;
- const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Lagos',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ const today=lagosDate();
  for(const profile of records.filter((r:any)=>r.phone&&r.registeredAt)) {
  const phone=profile.phone, screening=await kv.get(`user:${phone}:screening`);
  if(!screening?.reminder||screening.completed)continue;

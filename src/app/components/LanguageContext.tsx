@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { screeningAgeText } from "../libraryContent";
 
 export type Language = "en" | "yo";
@@ -475,8 +475,11 @@ translations.en['consent.confidentiality2']='Your phone number is collected for 
 translations.yo['consent.confidentiality2']='A gba nọ́mbà fóònù rẹ fún wíwọlé àti ìránnilétí. A so ìdáhùn rẹ mọ́ kóòdù olùkópa rẹ. Àwọn olùwádìí tó ní àṣẹ nìkan ló yẹ kí ó rí àkọsílẹ̀ rẹ.';
 translations.en['auth.recoveryIntro']='Enter the private recovery code you saved when creating your account, then enter your new four-digit PIN above. If you lost both your PIN and recovery code, contact your study team.';
 translations.yo['auth.recoveryIntro']='Tẹ kóòdù ìmúpadàbọ̀ tí o fi pamọ́ nígbà ìforúkọsílẹ̀, kí o sì tẹ PIN tuntun oní nọ́mbà mẹ́rin sí òkè. Bí o bá pàdánù PIN àti kóòdù rẹ, kàn sí ẹgbẹ́ ìwádìí.';
+translations.en['library.listenUnsupported']='A voice for this language is unavailable on this device. You can read the text or enable a matching voice in your device settings.';
+translations.yo['library.listenUnsupported']='Ohùn fún èdè yìí kò sí lórí ẹ̀rọ yìí. O lè ka ọ̀rọ̀ náà tàbí ṣí ohùn tó bá èdè náà mu nínú ètò ẹ̀rọ rẹ.';
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState<Language>("en");
+  useEffect(()=>{document.documentElement.lang=language;},[language]);
 
   const t = (key: string): string => {
     return translations[language][key] || translations["en"][key] || key;

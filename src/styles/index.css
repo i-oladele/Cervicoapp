@@ -1,3 +1,12 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
+
+/* Keep keyboard focus visible even on controls with outline-none utilities. */
+button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
+ outline: 3px solid #006666 !important;
+ outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+ *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}

@@ -21,13 +21,14 @@ export function BottomNav({ active, onNavigate }: BottomNavProps) {
   const { t } = useLanguage();
 
   return (
-    <div className="shrink-0 bg-white flex items-center justify-between px-[24px] pt-[12px] shadow-[0px_-4px_16px_0px_rgba(0,0,0,0.08)]"
+    <nav aria-label={t("nav.home")} className="shrink-0 bg-white flex items-center justify-between px-[24px] pt-[12px] shadow-[0px_-4px_16px_0px_rgba(0,0,0,0.08)]"
       style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom, 12px))' }}
     >
       {navItems.map((item) => {
         const isActive = active === item.id;
         return (
           <button
+            aria-current={isActive ? "page" : undefined}
             key={item.id}
             onClick={() => onNavigate(item.id)}
             className="flex flex-col gap-[6px] items-center w-[76px] bg-transparent border-none cursor-pointer"
@@ -77,6 +78,6 @@ export function BottomNav({ active, onNavigate }: BottomNavProps) {
           </button>
         );
       })}
-    </div>
+    </nav>
   );
 }

@@ -1,11 +1,11 @@
 import {build} from 'esbuild';
 import assert from 'node:assert/strict';
 const records=new Map(),routes=new Map();
-globalThis.__review={records,routes};
-globalThis.Deno={env:{get:()=>undefined},serve:()=>{}};
+globalThis.__review={records,routes,pushes:[]};
+globalThis.Deno={env:{get:key=>key.startsWith('VAPID_')?'test-config':undefined},serve:()=>{}};
 const stubs={name:'isolated-server',setup(b){
  b.onResolve({filter:/^npm:|kv_store\.ts$/},a=>({path:a.path,namespace:'mock'}));
- b.onLoad({filter:/.*/,namespace:'mock'},a=>({loader:'js',contents:a.path.includes('kv_store')?`export const compareAndSet=async(k,expected,value)=>{if(JSON.stringify(globalThis.__review.records.get(k))!==JSON.stringify(expected))return false;globalThis.__review.records.set(k,structuredClone(value));return true;};export const get=async k=>structuredClone(globalThis.__review.records.get(k)); export const set=async(k,v)=>globalThis.__review.records.set(k,structuredClone(v));export const del=async k=>globalThis.__review.records.delete(k);export const getByPrefix=async p=>[...globalThis.__review.records].filter(([k])=>k.startsWith(p)).map(([,v])=>structuredClone(v));`:a.path==='npm:hono'?`export class Hono {use(){} get(p,h){globalThis.__review.routes.set('GET '+p,h)} post(p,h){globalThis.__review.routes.set('POST '+p,h)}}`:a.path.includes('cors')?'export const cors=()=>()=>{};':a.path.includes('logger')?'export const logger=()=>()=>{};':'export default {setVapidDetails(){},sendNotification:async()=>{throw Error("No live sends allowed")}};'}));
+ b.onLoad({filter:/.*/,namespace:'mock'},a=>({loader:'js',contents:a.path.includes('kv_store')?`export const compareAndSet=async(k,expected,value)=>{if(JSON.stringify(globalThis.__review.records.get(k))!==JSON.stringify(expected))return false;globalThis.__review.records.set(k,structuredClone(value));return true;};export const get=async k=>structuredClone(globalThis.__review.records.get(k)); export const set=async(k,v)=>globalThis.__review.records.set(k,structuredClone(v));export const del=async k=>globalThis.__review.records.delete(k);export const getByPrefix=async p=>[...globalThis.__review.records].filter(([k])=>k.startsWith(p)).map(([,v])=>structuredClone(v));`:a.path==='npm:hono'?`export class Hono {use(){} get(p,h){globalThis.__review.routes.set('GET '+p,h)} post(p,h){globalThis.__review.routes.set('POST '+p,h)}}`:a.path.includes('cors')?'export const cors=()=>()=>{};':a.path.includes('logger')?'export const logger=()=>()=>{};':'export default {setVapidDetails(){},sendNotification:async(subscription,payload)=>{globalThis.__review.pushes.push(JSON.parse(payload));}};'}));
 }};
 const output=await build({entryPoints:['supabase/functions/server/index.ts'],bundle:true,write:false,format:'esm',plugins:[stubs]});
 await import('data:text/javascript;base64,'+Buffer.from(output.outputFiles[0].text).toString('base64'));
@@ -36,3 +36,19 @@ const rotated=await call('/recovery/generate',{phone:account.phone,pin:'2468'});
 assert.equal((await call('/auth/recovery/reset',{phone:account.phone,code:reset.body.recoveryCode,pin:'9999'})).status,400);
 assert.equal((await call('/auth/recovery/reset',{phone:account.phone,code:rotated.body.recoveryCode,pin:'9999'})).status,200);
 console.log('PASS: hashed recovery codes, PIN reset, old-code rejection, old-PIN rejection, session revocation and authenticated code replacement.');
+
+const appointmentPhone=account.phone;
+const today=new Date(Date.now()+3600000).toISOString().slice(0,10);
+assert.equal((await call('/screening',{phone:appointmentPhone,age:35,center:'asubiaro',date:'2026-02-30',reminder:false})).status,400);
+assert.equal((await call('/screening',{phone:appointmentPhone,age:35,center:'unknown',date:today,reminder:false})).status,400);
+assert.equal((await call('/screening',{phone:appointmentPhone,age:35,center:'asubiaro',date:today,reminder:true})).status,400);
+records.set(`user:${appointmentPhone}:push-subscription`,{endpoint:'https://example.invalid/push'});
+assert.equal((await call('/screening',{phone:appointmentPhone,age:35,center:'asubiaro',date:today,reminder:true})).status,200);
+const run=await call('/reminders/run',{});assert.equal(run.body.accepted,1);assert.equal(globalThis.__review.pushes.length,1);
+assert.equal((await call('/reminders/run',{})).body.accepted,0);
+await call('/screening/completed',{phone:appointmentPhone,completed:true});
+await call('/screening',{phone:appointmentPhone,age:35,center:'asubiaro',date:today,reminder:true});
+assert.equal(records.get(`user:${appointmentPhone}:screening`).completed,true);
+assert.equal((await call('/reminders/run',{})).body.accepted,0);
+await call('/push-subscription/disable',{phone:appointmentPhone});assert.equal(records.get(`user:${appointmentPhone}:screening`).reminder,false);
+console.log('PASS: appointment validation, push prerequisite, simulated reminder sending, duplicate suppression, preserved completion and reminder opt-out.');
