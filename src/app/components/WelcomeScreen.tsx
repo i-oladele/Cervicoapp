@@ -12,7 +12,7 @@ export function WelcomeScreen({ onGetStarted }: { onGetStarted: () => void }) {
 
       <div className="flex-1 overflow-y-auto relative z-[1]">
         {/* Welcome header */}
-        <div className="pt-[73px] px-[24px] flex items-baseline gap-[4px]">
+        <div className="pt-[clamp(32px,7dvh,73px)] px-[24px] flex flex-wrap items-baseline gap-x-[4px]">
           <p
             className="text-[28px] text-black tracking-[-1.6px]"
             style={{ fontFamily: "'Instrument Sans', sans-serif", fontWeight: 600 }}
@@ -29,7 +29,8 @@ export function WelcomeScreen({ onGetStarted }: { onGetStarted: () => void }) {
 
         {/* 3D Girl Illustration */}
         <div className="flex justify-center mt-[16px]">
-          <div className="relative w-[203px] h-[371px]">
+          {/* Shrinks on short screens so "Get Started" stays visible without scrolling */}
+          <div className="relative" style={{ height: "clamp(120px, calc(100dvh - 590px), 371px)", aspectRatio: "203 / 371" }}>
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               <img
                 alt="Woman illustration"

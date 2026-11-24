@@ -1,0 +1,25 @@
+import {build} from 'esbuild';
+import assert from 'node:assert/strict';
+const records=new Map(),routes=new Map();
+globalThis.__review={records,routes};
+globalThis.Deno={env:{get:()=>undefined},serve:()=>{}};
+const stubs={name:'isolated-server',setup(b){
+ b.onResolve({filter:/^npm:|kv_store\.ts$/},a=>({path:a.path,namespace:'mock'}));
+ b.onLoad({filter:/.*/,namespace:'mock'},a=>({loader:'js',contents:a.path.includes('kv_store')?`export const get=async k=>structuredClone(globalThis.__review.records.get(k)); export const set=async(k,v)=>globalThis.__review.records.set(k,structuredClone(v));export const del=async k=>globalThis.__review.records.delete(k);export const getByPrefix=async p=>[...globalThis.__review.records].filter(([k])=>k.startsWith(p)).map(([,v])=>structuredClone(v));`:a.path==='npm:hono'?`export class Hono {use(){} get(p,h){globalThis.__review.routes.set('GET '+p,h)} post(p,h){globalThis.__review.routes.set('POST '+p,h)}}`:a.path.includes('cors')?'export const cors=()=>()=>{};':a.path.includes('logger')?'export const logger=()=>()=>{};':'export default {setVapidDetails(){},sendNotification:async()=>{throw Error("No live sends allowed")}};'}));
+}};
+const output=await build({entryPoints:['supabase/functions/server/index.ts'],bundle:true,write:false,format:'esm',plugins:[stubs]});
+await import('data:text/javascript;base64,'+Buffer.from(output.outputFiles[0].text).toString('base64'));
+const q=await build({entryPoints:['supabase/functions/server/questionnaire.ts'],bundle:true,write:false,format:'esm'});
+const {questions,questionnaireVersion}=await import('data:text/javascript;base64,'+Buffer.from(q.outputFiles[0].text).toString('base64'));
+const phone='+2340000000000';
+const call=async(path,body)=>routes.get('POST /make-server-bcdc6876'+path)({req:{json:async()=>structuredClone(body),header:()=>undefined},json:(body,status=200)=>({body,status})});
+assert.equal((await call('/modules/complete',{phone,engagement:{}})).status,403);
+assert.equal((await call('/assessment',{phone,type:'endline',answers:{},questionnaireVersion})).status,403);
+const answers=Object.fromEntries(questions.map(q=>[q.id,q.options?(q.kind==='multi'?[q.options[0]]:q.options[0]):q.kind==='number'?(q.id==='1'?'35':'2'):'Test response']));
+let result=await call('/assessment',{phone,type:'baseline',answers,questionnaireVersion});assert.equal(result.status,200);assert(result.body.progress.baselineCompletedAt);assert.equal(records.get(`user:${phone}:assessment:baseline`).answers['1'],'35');
+assert.equal((await call('/assessment',{phone,type:'baseline',answers,questionnaireVersion})).status,409);
+result=await call('/modules/complete',{phone,engagement:{0:5000}});assert.equal(result.status,200);assert(result.body.progress.modulesCompletedAt);
+result=await call('/assessment',{phone,type:'endline',answers,questionnaireVersion});assert.equal(result.status,200);assert(result.body.progress.endlineCompletedAt);
+assert.equal((await call('/auth/recovery/request',{phone})).status,503);
+assert.equal((await call('/auth/recovery/reset',{phone,code:'123456',pin:'1234'})).status,400);
+console.log('PASS: isolated server flow checks—study-order rejection, baseline/endline persistence, duplicate prevention, timestamps and unconfigured/invalid recovery. No live accounts or SMS used.');

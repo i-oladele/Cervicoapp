@@ -290,8 +290,12 @@ app.post('/make-server-bcdc6876/push-subscription/disable',async(c)=>{
 // Save screening appointment
 app.post("/make-server-bcdc6876/screening", async (c) => {
   try {
-    const { phone, age, center, date, reminder } = await c.req.json();
-    
+    const body = await c.req.json();
+    const { phone, center, date, reminder } = body;
+    let age = body.age;
+    // Age is already collected in the baseline questionnaire (question 1); reuse it when the form does not send one.
+    if (!age) age = (await kv.get(`user:${phone}:assessment:baseline`))?.answers?.['1'];
+
     if (!phone || !age || !center || !date) {
       return c.json({ error: "Phone, age, center, and date are required" }, 400);
     }
@@ -331,16 +335,19 @@ app.post("/make-server-bcdc6876/screening/completed", async (c) => {
   try {
     const { phone, completed } = await c.req.json();
     
-    if (!phone) {
-      return c.json({ error: "Phone number is required" }, 400);
+    if (!phone || typeof completed !== "boolean") {
+      return c.json({ error: "Phone number and a yes/no answer are required" }, 400);
     }
 
     const screening = await kv.get(`user:${phone}:screening`);
-    if (screening) {
-      screening.completed = completed;
-      screening.completedAt = completed ? new Date().toISOString() : null;
-      await kv.set(`user:${phone}:screening`, screening);
-    }
+    if (!screening) return c.json({ error: "No screening appointment found" }, 404);
+    const now = new Date().toISOString();
+    screening.completed = completed;
+    screening.completedAt = completed ? now : null;
+    // Self-reported answer from the home screen or completion prompt. Every answer is kept for the research record.
+    screening.selfReportedAt = now;
+    screening.selfReports = [...(screening.selfReports || []), { completed, at: now }];
+    await kv.set(`user:${phone}:screening`, screening);
     
     console.log(`Screening completion updated for user: ${phone}, completed: ${completed}`);
     return c.json({ success: true, screening });

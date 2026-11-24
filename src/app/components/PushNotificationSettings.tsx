@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Bell, BellOff, Check, X } from "lucide-react";
 import { useUser } from "./UserContext";
 import { usePushNotifications } from "./PushNotificationManager";
-import { savePushSubscription } from "./api";
 import { toast } from "sonner";
+import { useLanguage } from "./LanguageContext";
 
 const fontInstrument = { fontFamily: "'Instrument Sans', sans-serif" };
 
@@ -11,6 +11,7 @@ export function PushNotificationSettings() {
   const [isEnabled, setIsEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useUser();
+  const { t } = useLanguage();
   const { isSupported, requestPermission, unsubscribe, getPermissionStatus } = usePushNotifications();
 
   useEffect(() => {
@@ -28,12 +29,12 @@ export function PushNotificationSettings() {
 
   const handleToggle = async () => {
     if (!isSupported) {
-      toast.error("Push notifications are not supported in your browser");
+      toast.error(t("push.unsupported"));
       return;
     }
 
     if (!user) {
-      toast.error("Please log in first");
+      toast.error(t("screening.loginFirst"));
       return;
     }
 
@@ -43,21 +44,21 @@ export function PushNotificationSettings() {
       if (isEnabled) {
         await unsubscribe();
         setIsEnabled(false);
-        toast.success("Push notifications disabled");
+        toast.success(t("push.disabled"));
       } else {
         // Enable notifications
         const granted = await requestPermission();
         if (granted) {
           // The PushNotificationManager will handle subscription
-          toast.success("Push notifications enabled!");
+          toast.success(t("push.enabled"));
           setIsEnabled(true);
         } else {
-          toast.error("Permission denied for push notifications");
+          toast.error(t("push.denied"));
         }
       }
     } catch (error) {
       console.error("Failed to toggle push notifications:", error);
-      toast.error("Failed to enable push notifications");
+      toast.error(t("push.failed"));
     } finally {
       setIsLoading(false);
     }
@@ -70,10 +71,10 @@ export function PushNotificationSettings() {
           <BellOff className="text-gray-400" size={20} />
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-900" style={fontInstrument}>
-              Push Notifications
+              {t("push.title")}
             </p>
             <p className="text-xs text-gray-500 mt-1" style={fontInstrument}>
-              Not supported in your browser
+              {t("push.unsupported")}
             </p>
           </div>
         </div>
@@ -86,22 +87,22 @@ export function PushNotificationSettings() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {isEnabled ? (
-            <Bell className="text-blue-600" size={20} />
+            <Bell className="text-[#008080]" size={20} />
           ) : (
             <BellOff className="text-gray-400" size={20} />
           )}
           <div>
             <p className="text-sm font-medium text-gray-900" style={fontInstrument}>
-              Push Notifications
+              {t("push.title")}
             </p>
             <p className="text-xs text-gray-500 mt-1" style={fontInstrument}>
-              {isEnabled ? "Enabled - You'll receive screening reminders" : "Disabled - Enable to receive reminders"}
+              {isEnabled ? t("push.on") : t("push.off")}
             </p>
           </div>
         </div>
         
         <button
-          role="switch" aria-checked={isEnabled} aria-label="Push notifications" onClick={handleToggle}
+          role="switch" aria-checked={isEnabled} aria-label={t("push.title")} onClick={handleToggle}
           disabled={isLoading}
           className={`relative w-12 h-6 rounded-full transition-colors ${
             isEnabled ? "bg-[#008080]" : "bg-gray-300"
@@ -118,20 +119,20 @@ export function PushNotificationSettings() {
       {isEnabled && (
         <div className="mt-3 pt-3 border-t border-gray-100">
           <p className="text-xs text-gray-600" style={fontInstrument}>
-            You'll receive notifications:
+            {t("push.youWillReceive")}
           </p>
           <ul className="mt-1 space-y-1 text-xs text-gray-600" style={fontInstrument}>
             <li className="flex items-center gap-1">
               <Check size={12} className="text-green-500" />
-              2 days before screening
+              {t("push.twoDays")}
             </li>
             <li className="flex items-center gap-1">
               <Check size={12} className="text-green-500" />
-              1 day before screening
+              {t("push.oneDay")}
             </li>
             <li className="flex items-center gap-1">
               <Check size={12} className="text-green-500" />
-              Morning of screening
+              {t("push.morning")}
             </li>
           </ul>
         </div>

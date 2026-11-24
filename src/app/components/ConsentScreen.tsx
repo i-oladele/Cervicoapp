@@ -3,10 +3,13 @@ import { BackgroundLogo } from "./BackgroundLogo";
 import { Square } from "lucide-react";
 import { useLanguage } from "./LanguageContext";
 import svgPaths from "../../imports/svg-34anl4iwwi";
+import { studyInfo } from "../studyInfo";
 
 export function ConsentScreen({ onContinue }: { onContinue: () => void }) {
   const [agreed, setAgreed] = useState(false);
   const { t, language } = useLanguage();
+  const hasContact = !!(studyInfo.researcherPhone || studyInfo.researcherEmail);
+  const hasEthics = !!(studyInfo.ethicsCommittee || studyInfo.ethicsApprovalNumber);
 
   return (
     <div className="bg-[#f8fafc] size-full relative flex flex-col overflow-hidden">
@@ -27,7 +30,7 @@ export function ConsentScreen({ onContinue }: { onContinue: () => void }) {
           data-consent className="mt-[16px] text-[17px] text-black tracking-[-0.3px]"
           style={{ fontFamily: "'Instrument Sans', sans-serif", fontWeight: 400 }}
         >
-          <p className="mb-4">{t("consent.intro")} — Oyedero Lolade Comfort, University of Ibadan.</p>
+          <p className="mb-4">{t("consent.intro")} — {studyInfo.researcherName}, {studyInfo.institution}.</p>
 
           <p className="mb-1" style={{ fontWeight: 700 }}>{t("consent.purposeTitle")}</p>
           <p className="mb-4 whitespace-pre-line">{t("consent.purposeText")}</p>
@@ -63,7 +66,17 @@ export function ConsentScreen({ onContinue }: { onContinue: () => void }) {
           <p className="mb-1">{t("consent.voluntary2")}</p>
           <p className="mb-1">{t("consent.voluntary3")}</p>
           <p className="mb-1">{t("consent.voluntary4")}</p>
-          <p>{t("consent.voluntary5")}</p>
+          <p>{t(hasContact ? "consent.voluntary5Contact" : "consent.voluntary5")}</p>
+
+          {(hasContact || hasEthics) && (
+            <>
+              <p className="mt-4 mb-1" style={{ fontWeight: 700 }}>{t("consent.contactTitle")}</p>
+              {hasContact && <p className="mb-1">{t("consent.researcher")}: {studyInfo.researcherName}</p>}
+              {studyInfo.researcherPhone && <p className="mb-1">{t("consent.phone")}: <a className="text-[#008080] underline" href={`tel:${studyInfo.researcherPhone.replace(/\s/g, "")}`}>{studyInfo.researcherPhone}</a></p>}
+              {studyInfo.researcherEmail && <p className="mb-1">{t("consent.email")}: <a className="text-[#008080] underline" href={`mailto:${studyInfo.researcherEmail}`}>{studyInfo.researcherEmail}</a></p>}
+              {hasEthics && <p className="mb-1">{t("consent.ethics")}: {[studyInfo.ethicsCommittee, studyInfo.ethicsApprovalNumber && `${t("consent.approvalNumber")} ${studyInfo.ethicsApprovalNumber}`].filter(Boolean).join(", ")}</p>}
+            </>
+          )}
         </div>
 
         {/* Checkbox */}

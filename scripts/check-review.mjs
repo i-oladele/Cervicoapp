@@ -15,4 +15,30 @@ vm.runInNewContext(fs.readFileSync('public/sw.js','utf8'),{self:{addEventListene
 let pending;handlers.push({data:{json:()=>({title:'Ìránnilétí àyẹ̀wò',body:'Ọjọ́ àyẹ̀wò rẹ',data:{url:'/'}})},waitUntil:p=>pending=p});await pending;
 assert.equal(notification.title,'Ìránnilétí àyẹ̀wò');assert.equal(notification.options.body,'Ọjọ́ àyẹ̀wò rẹ');
 await build({entryPoints:['supabase/functions/server/index.ts'],bundle:true,write:false,platform:'neutral',external:['npm:*','jsr:*']});
-console.log('Passed questionnaire structure, skip logic, Yoruba notification display and server compilation. Live delivery remains unverified.');
+
+// Translations, library content and review regressions
+const stubReact={name:'stub-react',setup(b){b.onResolve({filter:/^react(\/jsx-runtime)?$/},a=>({path:a.path,namespace:'stub'}));b.onLoad({filter:/.*/,namespace:'stub'},()=>({contents:'export const createContext=()=>({});export const useContext=()=>({});export const useState=v=>[v,()=>{}];export const jsx=()=>null;export const jsxs=()=>null;export const Fragment=null;',loader:'js'}));}};
+const load=async entry=>{const out=await build({entryPoints:[entry],bundle:true,write:false,format:'esm',platform:'neutral',jsx:'automatic',plugins:[stubReact]});return import('data:text/javascript;base64,'+Buffer.from(out.outputFiles[0].text).toString('base64'));};
+const {translations}=await load('src/app/components/LanguageContext.tsx');
+const missingYo=Object.keys(translations.en).filter(k=>!translations.yo[k]);
+const missingEn=Object.keys(translations.yo).filter(k=>!translations.en[k]);
+assert.deepEqual(missingYo,[],'English keys without Yoruba: '+missingYo.join(', '));
+assert.deepEqual(missingEn,[],'Yoruba keys without English: '+missingEn.join(', '));
+const {librarySlides}=await load('src/app/libraryContent.ts');
+for(const s of librarySlides)for(const f of ['unit','heading','body'])for(const l of ['en','yo'])assert.ok(s[f][l]?.trim(),`Slide ${s.id} missing ${f}.${l}`);
+const allText=l=>librarySlides.map(s=>s.heading[l]+' '+s.body[l]).join(' ');
+assert.match(allText('en'),/witchcraft/i,'Myth vs Fact (witchcraft) slide missing');
+assert.match(allText('en'),/embarrassment/i,'Barriers slide missing');
+assert.match(allText('en'),/second most common cancer among women in Nigeria[\s\S]*GLOBOCAN/,'Nigeria burden statement or citation missing');
+assert.ok(librarySlides.some(s=>s.action==='book'),'Book Screening Appointment slide missing');
+assert.ok(librarySlides.filter(s=>s.image).length<=2,'Anatomy image should not repeat on every slide');
+assert.doesNotMatch(allText('en')+Object.values(translations.en).join(' '),/also known as a Pap test|regardless of sexual history|prevent cancer completely|21.65/i);
+const faqCount=Number(fs.readFileSync('src/app/components/LibraryScreen.tsx','utf8').match(/FAQ_COUNT = (\d+)/)[1]);
+for(let i=1;i<=faqCount;i++)for(const l of ['en','yo'])assert.ok(translations[l][`library.faq${i}.q`]&&translations[l][`library.faq${i}.a`],`FAQ ${i} missing in ${l}`);
+assert.match(Object.keys(translations.en).filter(k=>k.startsWith('library.faq')).map(k=>translations.en[k]).join(' '),/\bVIA\b[^.]*\(visual inspection with acetic acid\)/,'FAQ on VIA missing');
+for(const f of fs.readdirSync('src/assets'))assert.ok(fs.statSync('src/assets/'+f).size<500_000,`Asset ${f} is over 500 KB`);
+const ui=['AssessmentScreen','AuthScreen','HomeScreen','LibraryScreen','ScreeningScreen','ScreeningCompletionModal','PushNotificationSettings'].map(n=>fs.readFileSync(`src/app/components/${n}.tsx`,'utf8')).join('\n');
+for(const english of ['Complete your baseline assessment before','Complete baseline and learning modules','>Section {','Study facility<','Questionnaire serial number<','Forgot PIN?<','Have you done your','"Completed"','Book Screening Appointment','Enable push notifications before','Choose a centre and','Please specify"'])assert.ok(!ui.includes(english),`Hard-coded English left in UI: ${english}`);
+assert.match(translations.en['auth.phoneError'],/0 followed by 10 digits/,'Phone error should mention numbers starting with 0');
+assert.ok(!/Ikirun|Ipetu/.test(fs.readFileSync('src/app/components/AuthScreen.tsx','utf8')),'Control-group facilities should not be offered at registration');
+console.log('Passed questionnaire structure, skip logic, Yoruba notification display, server compilation, English/Yoruba key parity, library content and review regressions. Live delivery remains unverified.');

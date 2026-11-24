@@ -3,35 +3,38 @@ import { X } from "lucide-react";
 import { useUser } from "./UserContext";
 import { updateScreeningCompletion } from "./api";
 import { toast } from "sonner";
+import { useLanguage } from "./LanguageContext";
 
 const fontInstrument = { fontFamily: "'Instrument Sans', sans-serif" };
 
 interface ScreeningCompletionModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAnswered?: (screening: any) => void;
 }
 
-export function ScreeningCompletionModal({ isOpen, onClose }: ScreeningCompletionModalProps) {
+export function ScreeningCompletionModal({ isOpen, onClose, onAnswered }: ScreeningCompletionModalProps) {
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
+  const { t } = useLanguage();
 
   const handleConfirm = async (completed: boolean) => {
     if (!user) return;
 
     setLoading(true);
     try {
-      await updateScreeningCompletion(user.phone, completed);
-      
+      const result = await updateScreeningCompletion(user.phone, completed);
+      onAnswered?.(result?.screening ?? { completed });
       if (completed) {
-        toast.success("Thank you for confirming your screening completion!");
+        toast.success(t("completion.thanks"));
       } else {
-        toast.info("You can reschedule your screening anytime.");
+        toast.info(t("completion.reschedule"));
       }
       
       onClose();
     } catch (error) {
       console.error("Error updating screening completion:", error);
-      toast.error("Failed to update screening status");
+      toast.error(t("home.screeningSaveError"));
     } finally {
       setLoading(false);
     }
@@ -45,10 +48,11 @@ export function ScreeningCompletionModal({ isOpen, onClose }: ScreeningCompletio
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
           <h2 className="text-xl font-semibold text-black" style={fontInstrument}>
-            Screening Completion
+            {t("completion.title")}
           </h2>
           <button
             onClick={onClose}
+            aria-label={t("completion.later")}
             className="text-gray-400 hover:text-gray-600 transition-colors"
           >
             <X size={20} />
@@ -58,10 +62,10 @@ export function ScreeningCompletionModal({ isOpen, onClose }: ScreeningCompletio
         {/* Content */}
         <div className="mb-6">
           <p className="text-gray-700 mb-4" style={fontInstrument}>
-            Did you complete your cervical cancer screening today?
+            {t("completion.question")}
           </p>
           <p className="text-sm text-gray-500" style={fontInstrument}>
-            Your response helps us provide better follow-up care and reminders.
+            {t("completion.note")}
           </p>
         </div>
 
@@ -73,7 +77,7 @@ export function ScreeningCompletionModal({ isOpen, onClose }: ScreeningCompletio
             className="flex-1 bg-[#008080] text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             style={fontInstrument}
           >
-            {loading ? "Saving..." : "Yes, I completed it"}
+            {loading ? t("assessment.saving") : t("completion.yes")}
           </button>
           <button
             onClick={() => handleConfirm(false)}
@@ -81,7 +85,7 @@ export function ScreeningCompletionModal({ isOpen, onClose }: ScreeningCompletio
             className="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             style={fontInstrument}
           >
-            {loading ? "Saving..." : "No, I missed it"}
+            {loading ? t("assessment.saving") : t("completion.no")}
           </button>
         </div>
 
@@ -92,7 +96,7 @@ export function ScreeningCompletionModal({ isOpen, onClose }: ScreeningCompletio
             className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
             style={fontInstrument}
           >
-            Maybe later
+            {t("completion.later")}
           </button>
         </div>
       </div>

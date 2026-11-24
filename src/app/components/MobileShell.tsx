@@ -26,8 +26,9 @@ export function MobileShell({ children, className = "" }: { children: React.Reac
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900">
       <div
-        className={`relative w-[393px] h-[852px] overflow-hidden ${className}`}
-        style={{ borderRadius: "40px", boxShadow: "0 0 60px rgba(0,0,0,0.3)" }}
+        className={`relative w-[393px] overflow-hidden ${className}`}
+        // Never taller than the browser window, so buttons stay reachable on laptops
+        style={{ height: "min(852px, calc(100dvh - 32px))", borderRadius: "40px", boxShadow: "0 0 60px rgba(0,0,0,0.3)" }}
       >
         {children}
       </div>

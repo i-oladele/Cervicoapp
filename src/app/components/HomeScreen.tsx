@@ -11,7 +11,8 @@ import { useLanguage } from "./LanguageContext";
 import { useUser } from "./UserContext";
 import { VideoCard } from "./VideoCard";
 import { NotificationCenter } from "./NotificationCenter";
-import { getScreeningData } from "./api";
+import { getScreeningData, updateScreeningCompletion } from "./api";
+import { toast } from "sonner";
 import { ScreeningCompletionModal } from "./ScreeningCompletionModal";
 import FigmaCheckCircleHome from "../../imports/CheckCircle-10-491";
 
@@ -25,9 +26,26 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
   const { t } = useLanguage();
   const { user, progress } = useUser();
   const [screeningData, setScreeningData] = useState<any>(null);
-  const [screeningCompleted, setScreeningCompleted] = useState(false);
   const [hasCheckedScreening, setHasCheckedScreening] = useState<boolean | null>(null);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [savingAnswer, setSavingAnswer] = useState(false);
+
+  const answerScreening = async (completed: boolean) => {
+    if (!user || savingAnswer) return;
+    const previous = hasCheckedScreening;
+    setHasCheckedScreening(completed);
+    setSavingAnswer(true);
+    try {
+      const result = await updateScreeningCompletion(user.phone, completed);
+      if (result?.screening) setScreeningData(result.screening);
+      toast.success(t("home.screeningSaved"));
+    } catch {
+      setHasCheckedScreening(previous);
+      toast.error(t("home.screeningSaveError"));
+    } finally {
+      setSavingAnswer(false);
+    }
+  };
 
   // Fetch screening data on component mount
   useEffect(() => {
@@ -36,8 +54,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
         try {
           const screening = await getScreeningData(user.phone);
           setScreeningData(screening);
-          setHasCheckedScreening(null);
-          setScreeningCompleted(screening?.completed || false);
+          setHasCheckedScreening(screening?.completed ? true : screening?.selfReportedAt ? false : null);
         } catch (error) {
           console.log("No screening data found:", error);
           setScreeningData(null);
@@ -187,30 +204,45 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
             <div className="bg-[#f6f6f6] rounded-[8px] p-[16px] flex gap-px items-center">
               <div className="flex flex-col gap-[8px] w-[216px]">
                 <p className="text-[16px] text-black tracking-[-0.48px]" style={{ ...fontInstrument, fontWeight: 500 }}>
-                  Have you done your cervical cancer screening?
+                  {t("home.screeningQuestion")}
                 </p>
                 <div className="flex gap-[8px]">
                   <button
-                    onClick={() => setHasCheckedScreening(true)}
+                    onClick={() => answerScreening(true)}
+                    disabled={savingAnswer}
+                    aria-pressed={hasCheckedScreening === true}
                     className={`p-[8px] rounded-[8px] border-none cursor-pointer flex-1 ${
                       hasCheckedScreening ? "bg-[#008080] text-white" : "bg-white text-black border border-gray-300"
                     }`}
                   >
                     <p className="text-[15px] text-center" style={{ ...fontInstrument, fontWeight: 600 }}>
-                      Yes
+                      {t("home.yes")}
                     </p>
                   </button>
                   <button
-                    onClick={() => setHasCheckedScreening(false)}
+                    onClick={() => answerScreening(false)}
+                    disabled={savingAnswer}
+                    aria-pressed={hasCheckedScreening === false}
                     className={`p-[8px] rounded-[8px] border-none cursor-pointer flex-1 ${
                       hasCheckedScreening === false ? "bg-[#008080] text-white" : "bg-white text-black border border-gray-300"
                     }`}
                   >
                     <p className="text-[15px] text-center" style={{ ...fontInstrument, fontWeight: 600 }}>
-                      No
+                      {t("home.no")}
                     </p>
                   </button>
                 </div>
+                {hasCheckedScreening === false && (
+                  <div className="flex flex-col gap-[6px]">
+                    <p className="text-[13px] text-[#555]" style={fontInstrument}>{t("home.screeningNotYet")}</p>
+                    <button
+                      onClick={() => onNavigate("screening")}
+                      className="bg-[#9fe29a] p-[8px] rounded-[8px] border-none cursor-pointer w-fit"
+                    >
+                      <span className="text-[14px] text-black" style={{ ...fontInstrument, fontWeight: 600 }}>{t("home.changeDate")}</span>
+                    </button>
+                  </div>
+                )}
               </div>
               <div className="relative shrink-0 size-[102px]">
                 <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={imgIstockphoto} />
@@ -271,7 +303,11 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
       {/* Screening Completion Modal */}
       <ScreeningCompletionModal 
         isOpen={showCompletionModal} 
-        onClose={() => setShowCompletionModal(false)} 
+        onClose={() => setShowCompletionModal(false)}
+        onAnswered={(screening) => {
+          setScreeningData(screening);
+          setHasCheckedScreening(screening?.completed ? true : false);
+        }}
       />
     </div>
   );

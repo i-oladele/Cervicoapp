@@ -38,10 +38,11 @@ export function NotificationCenter() {
     <div className="relative">
       {/* Notification Bell */}
       <button
-        aria-label="Notifications and screening reminders" aria-expanded={isOpen} onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        aria-expanded={isOpen} onClick={() => setIsOpen(!isOpen)}
+        className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors flex flex-col items-center gap-[2px]"
       >
-        <Bell size={20} className="text-gray-600" />
+        <Bell size={20} className="text-gray-600" aria-hidden="true" />
+        <span className="text-[11px] text-gray-600 leading-none" style={fontInstrument}>{t("home.reminders")}</span>
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
             {unreadCount > 9 ? "9+" : unreadCount}
