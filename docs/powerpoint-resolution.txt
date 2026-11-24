@@ -3,10 +3,10 @@ PowerPoint findings — remaining evidence and decisions
 National guideline: https://www.nicrat.gov.ng/wp-content/uploads/2023/08/Guidelines-for-Cervical-Cancer-Screening-in-Nigeria-2025.pdf
 The app now identifies the national primary target age group (30–49), routine start age 30 and HIV start age 25. Repeat intervals remain clinician-directed.
 
-Researcher must supply: contact details; ethics approval identifier/status; verified clinic days, hours and fees; authorised staff for identity-checked PIN recovery; Yoruba reviewer; approved scoring treatment for questions 11,12,15.
+Researcher must supply: contact details; ethics approval identifier/status; verified clinic days, hours and fees; authorised staff for identity-checked PIN recovery; Yoruba reviewer.
 
 Deployment requires authenticated access to Supabase and Vercel. Local Supabase CLI has no access token. Real-phone notification receipt and clinical/language sign-off cannot be certified from a successful build.
 
 Proposal corrections to apply to a reviewed copy:
 Section 3.9: four sections A–D, 36 items. Section B mixes choice, multiple-response, Yes/No and True/False questions, rather than 12 Yes/No questions. Section D contains eight custom usability and cultural appropriateness statements, not the published uMARS instrument. Preserve the submitted questionnaire wording; do not substitute uMARS without researcher approval.
-Scoring: do not call the current nine objectively keyed items a validated 12-point score. Awareness, source-of-information and ambiguous risk items require the researcher’s scoring decision before study use.
+Scoring (decided): Knowledge is scored on the 12 items of Section B (Q11–22), 1 point each, total 0–12, using the researcher's rules: Q11 'Yes' = 1; Q12 at least one source ticked = 1; Q15 'All women' or 'All sexually active women' = 1; every other item has one correct answer. Each item's point is stored with the assessment (knowledgeScoringVersion appendix-II-12-item-v1). Assessments submitted before this change were scored on 9 items; their full answers are stored and can be rescored.

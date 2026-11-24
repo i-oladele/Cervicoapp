@@ -462,3 +462,35 @@ export const questions = [
     "when": null
   }
 ];
+
+// Knowledge score for Section B (questions 11–22): 1 point per item, total 0–12, as in the proposal.
+// Researcher's rules for the three non-standard items:
+//   Q11 "Have you heard of cervical cancer?"  -> "Yes" earns 1 point
+//   Q12 sources of information               -> ticking at least one source earns 1 point
+//   Q15 which women are at risk              -> "All women" or "All sexually active women" earns 1 point
+export const knowledgeScoringVersion = "appendix-II-12-item-v1";
+const knowledgeKey: Record<string, string[]> = {
+  "11": ["Yes"],
+  "13": ["Human papillomavirus (HPV)"],
+  "14": ["Sexual intercourse"],
+  "15": ["All women", "All sexually active women"],
+  "16": ["Yes"],
+  "17": ["Yes"],
+  "18": ["To detect cervical abnormalities early, before cancer develops"],
+  "19": ["Abnormal vaginal bleeding, such as bleeding after sexual intercourse"],
+  "20": ["Yes"],
+  "21": ["Screening can help detect cervical abnormalities before they develop into cancer"],
+  "22": ["True"],
+};
+export function scoreKnowledge(answers: Record<string, unknown>) {
+  const items: Record<string, 0 | 1> = {};
+  for (let n = 11; n <= 22; n++) {
+    const id = String(n);
+    const answer = answers[id];
+    items[id] = id === "12"
+      ? (Array.isArray(answer) && answer.length > 0 ? 1 : 0)
+      : (knowledgeKey[id].includes(answer as string) ? 1 : 0);
+  }
+  const score = Object.values(items).reduce<number>((sum, point) => sum + point, 0);
+  return { score, total: 12, items };
+}

@@ -3,8 +3,19 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 const compiled=await build({entryPoints:['supabase/functions/server/questionnaire.ts'],bundle:true,write:false,format:'esm'});
-const {questions}=await import('data:text/javascript;base64,'+Buffer.from(compiled.outputFiles[0].text).toString('base64'));
+const {questions,scoreKnowledge}=await import('data:text/javascript;base64,'+Buffer.from(compiled.outputFiles[0].text).toString('base64'));
 assert.equal(questions.length,36);
+// Knowledge score: 12 items (Q11–22), 1 point each, using the researcher's rules for Q11, Q12 and Q15
+const byId=Object.fromEntries(questions.map(q=>[q.id,q]));
+for(let n=11;n<=22;n++){if(n===12)continue;const q=byId[String(n)];const scoring=q.options.filter(o=>scoreKnowledge({[q.id]:o}).items[q.id]===1);assert.equal(scoring.length,n===15?2:1,`Q${n} should have ${n===15?2:1} scoring option(s), found: ${scoring.join(' | ')}`);}
+assert.deepEqual(byId['15'].options.filter(o=>scoreKnowledge({'15':o}).items['15']),['All women','All sexually active women']);
+assert.equal(scoreKnowledge({'11':'Yes'}).items['11'],1);assert.equal(scoreKnowledge({'11':'No'}).items['11'],0);
+assert.equal(scoreKnowledge({'12':['Friends']}).items['12'],1);assert.equal(scoreKnowledge({'12':['Friends','Health workers']}).items['12'],1);
+assert.equal(scoreKnowledge({'12':[]}).items['12'],0);assert.equal(scoreKnowledge({'12':null}).items['12'],0);
+const best=Object.fromEntries(['11','13','14','15','16','17','18','19','20','21','22'].map(id=>[id,byId[id].options.find(o=>scoreKnowledge({[id]:o}).items[id])]));best['12']=['Health workers'];
+assert.deepEqual([scoreKnowledge(best).score,scoreKnowledge(best).total],[12,12]);
+assert.equal(scoreKnowledge({...best,'11':'No','12':null}).score,10,'Answering No to Q11 skips Q12, so both score 0');
+assert.equal(scoreKnowledge({}).score,0);
 assert.deepEqual(['A','B','C','D'].map(section=>questions.filter(q=>q.section===section).length),[10,12,6,8]);
 assert.equal(new Set(questions.map(q=>q.id)).size,36);
 const shown=(type,answers)=>questions.filter(q=>(type==='endline'||q.section!=='D')&&(!q.when||answers[q.when[0]]===q.when[1]));
@@ -49,4 +60,4 @@ const ui=['AssessmentScreen','AuthScreen','HomeScreen','LibraryScreen','Screenin
 for(const english of ['Complete your baseline assessment before','Complete baseline and learning modules','>Section {','Study facility<','Questionnaire serial number<','Forgot PIN?<','Have you done your','"Completed"','Book Screening Appointment','Enable push notifications before','Choose a centre and','Please specify"'])assert.ok(!ui.includes(english),`Hard-coded English left in UI: ${english}`);
 assert.match(translations.en['auth.phoneError'],/0 followed by 10 digits/,'Phone error should mention numbers starting with 0');
 assert.ok(!/Ikirun|Ipetu/.test(fs.readFileSync('src/app/components/AuthScreen.tsx','utf8')),'Control-group facilities should not be offered at registration');
-console.log('Passed questionnaire structure, skip logic, Yoruba notification display, server compilation, English/Yoruba key parity, library content and review regressions. Live delivery remains unverified.');
+console.log('Passed questionnaire structure, skip logic, Yoruba notification display, server compilation, English/Yoruba key parity, library content and review regressions, 12-item knowledge scoring. Live delivery remains unverified.');

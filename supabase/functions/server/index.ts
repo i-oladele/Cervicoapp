@@ -1,5 +1,5 @@
 import webpush from "npm:web-push@3.6.7";
-import { questions } from "./questionnaire.ts";
+import { questions, scoreKnowledge, knowledgeScoringVersion } from "./questionnaire.ts";
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
@@ -252,14 +252,12 @@ app.post("/make-server-bcdc6876/assessment", async (c) => {
       if(q.kind==='number'&&(!/^\d+$/.test(value)||Number(value)<(q.id==='1'?18:0)||Number(value)>120))return c.json({error:`Invalid number for question ${q.id}`},400);
       if(q.kind==='other'&&String(value).startsWith('Other')&&!String(answers[q.id+'Other']||'').trim())return c.json({error:'Specify your other response'},400);
     }
-    const key: Record<string,string> = {'13':'Human papillomavirus (HPV)','14':'Sexual intercourse','16':'Yes','17':'Yes','18':'To detect cervical abnormalities early, before cancer develops','19':'Abnormal vaginal bleeding, such as bleeding after sexual intercourse','20':'Yes','21':'Screening can help detect cervical abnormalities before they develop into cancer','22':'True'};
-    const score = Object.entries(key).filter(([id,value])=>answers[id]===value).length;
-    const total = Object.keys(key).length;
-    // Awareness/source questions and ambiguous risk item are retained but not assigned invented answer keys.
+    const knowledge = scoreKnowledge(answers);
+    const { score, total } = knowledge;
     const assessmentData = {
       questionnaireVersion,
-      knowledgeScoringVersion: 'objective-items-v1',
-      unscoredKnowledgeItems: ['11','12','15'],
+      knowledgeScoringVersion,
+      knowledgeItemScores: knowledge.items,
       score,
       total,
       answers,
