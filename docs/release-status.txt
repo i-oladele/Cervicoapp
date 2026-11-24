@@ -1,11 +1,11 @@
 Application handover
 
-Local implementation includes the revised 36-item instrument, baseline/modules/endline gates and timestamps, translated consent and learning content, automated SMS PIN recovery, screening appointment planning, subscription controls, and responsive layouts. Research details and clinic information remain pending by instruction. Knowledge scoring approval remains pending; the provisional objective-item score must not be represented as the approved 12-point study score.
+Local implementation includes the revised 36-item instrument, baseline/modules/endline gates and timestamps, translated consent and learning content, private recovery codes for PIN recovery, screening appointment planning, subscription controls, and responsive layouts. Research details and clinic information remain pending by instruction. Knowledge scoring approval remains pending; the provisional objective-item score must not be represented as the approved 12-point study score.
 
 External setup required for delivery features:
 1. Set the server secrets listed in server-secrets.example. Set the matching VITE_VAPID_PUBLIC_KEY when building the frontend.
 2. Configure a daily scheduler at 09:00 Africa/Lagos to POST /functions/v1/make-server-bcdc6876/reminders/run using the secret bearer token. Avoid overlapping invocations.
-3. Configure a funded Termii account and approved sender ID. Never share private keys in chat or commit them.
+3. PIN recovery uses saved private codes and needs no external service. Never share private keys in chat or commit them.
 4. Deploy frontend and the Supabase function together. A frontend-only deployment does not update the function.
 
-No live-device testing is being continued at the user's request. Real SMS and notification delivery and fluent Yoruba approval are not certified by local build checks. The corrected Word proposal has been delivered separately.
+No live-device testing is being continued at the user's request. Real notification delivery and fluent Yoruba approval are not certified by local build checks. The corrected Word proposal has been delivered separately.

@@ -87,7 +87,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "auth.studyFieldsError": "Enter the study facility, questionnaire serial number and LGA",
     "auth.pinDigit": "PIN digit",
     "auth.forgotPin": "Forgot PIN?",
-    "auth.recoveryIntro": "We will send a six-digit recovery code by SMS to your registered phone number. The code expires after five minutes.",
+    "auth.recoveryIntro": "Enter your saved private recovery code and choose a new four-digit PIN. If you lost both, contact your study team.",
     "auth.sendCode": "Send recovery code",
     "auth.codeSent": "If this number is registered, a code has been sent to it.",
     "auth.recoveryCode": "Recovery code",
@@ -313,7 +313,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "auth.studyFieldsError": "Tẹ ilé ìwòsàn ìwádìí, nọ́mbà ìtẹ̀léra ìwé ìbéèrè àti ìjọba ìbílẹ̀",
     "auth.pinDigit": "Díjíìtì pínì",
     "auth.forgotPin": "Ṣé o gbàgbé pínì rẹ?",
-    "auth.recoveryIntro": "A ó fi kóòdù oníka mẹ́fà ránṣẹ́ sí nọ́mbà fóònù tí o fi forúkọ sílẹ̀ nípasẹ̀ SMS. Kóòdù náà kò ní ṣiṣẹ́ mọ́ lẹ́yìn ìṣẹ́jú márùn-ún.",
+    "auth.recoveryIntro": "Tẹ kóòdù ìmúpadàbọ̀ tí o fi pamọ́, kí o sì yan PIN tuntun oní nọ́mbà mẹ́rin. Bí o bá pàdánù méjèèjì, kàn sí ẹgbẹ́ ìwádìí.",
     "auth.sendCode": "Fi kóòdù ránṣẹ́",
     "auth.codeSent": "Bí nọ́mbà yìí bá ti forúkọ sílẹ̀, a ti fi kóòdù ránṣẹ́ sí i.",
     "auth.recoveryCode": "Kóòdù ìmúpadà",
@@ -473,6 +473,8 @@ translations.en['library.faq7.a']=screeningAgeText.en;
 translations.yo['library.faq7.a']=screeningAgeText.yo;
 translations.en['consent.confidentiality2']='Your phone number is collected for account login and reminders. Questionnaire responses are linked to your participant code. Only authorised research staff should access your records.';
 translations.yo['consent.confidentiality2']='A gba nọ́mbà fóònù rẹ fún wíwọlé àti ìránnilétí. A so ìdáhùn rẹ mọ́ kóòdù olùkópa rẹ. Àwọn olùwádìí tó ní àṣẹ nìkan ló yẹ kí ó rí àkọsílẹ̀ rẹ.';
+translations.en['auth.recoveryIntro']='Enter the private recovery code you saved when creating your account, then enter your new four-digit PIN above. If you lost both your PIN and recovery code, contact your study team.';
+translations.yo['auth.recoveryIntro']='Tẹ kóòdù ìmúpadàbọ̀ tí o fi pamọ́ nígbà ìforúkọsílẹ̀, kí o sì tẹ PIN tuntun oní nọ́mbà mẹ́rin sí òkè. Bí o bá pàdánù PIN àti kóòdù rẹ, kàn sí ẹgbẹ́ ìwádìí.';
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState<Language>("en");
 

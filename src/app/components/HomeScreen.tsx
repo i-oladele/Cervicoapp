@@ -1,3 +1,4 @@
+import { RecoverySettings } from "./RecoveryCode";
 import { useState, useEffect } from "react";
 import img3DiconsFileTextDynamicColor from "../../assets/3b2c1ffa27c5ea87c5bf8baa40559c17cefa558d.png";
 import img3DiconsNotebookDynamicColor from "figma:asset/daa3b4e3a939e95bb002892d86e013e60c242b18.png";
@@ -104,6 +105,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
           <NotificationCenter />
         </div>
 
+        <RecoverySettings />
         {/* Progress Section */}
         <div className="px-[24px] mt-[20px]">
           <p

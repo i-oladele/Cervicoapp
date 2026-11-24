@@ -5,7 +5,7 @@ globalThis.__review={records,routes};
 globalThis.Deno={env:{get:()=>undefined},serve:()=>{}};
 const stubs={name:'isolated-server',setup(b){
  b.onResolve({filter:/^npm:|kv_store\.ts$/},a=>({path:a.path,namespace:'mock'}));
- b.onLoad({filter:/.*/,namespace:'mock'},a=>({loader:'js',contents:a.path.includes('kv_store')?`export const get=async k=>structuredClone(globalThis.__review.records.get(k)); export const set=async(k,v)=>globalThis.__review.records.set(k,structuredClone(v));export const del=async k=>globalThis.__review.records.delete(k);export const getByPrefix=async p=>[...globalThis.__review.records].filter(([k])=>k.startsWith(p)).map(([,v])=>structuredClone(v));`:a.path==='npm:hono'?`export class Hono {use(){} get(p,h){globalThis.__review.routes.set('GET '+p,h)} post(p,h){globalThis.__review.routes.set('POST '+p,h)}}`:a.path.includes('cors')?'export const cors=()=>()=>{};':a.path.includes('logger')?'export const logger=()=>()=>{};':'export default {setVapidDetails(){},sendNotification:async()=>{throw Error("No live sends allowed")}};'}));
+ b.onLoad({filter:/.*/,namespace:'mock'},a=>({loader:'js',contents:a.path.includes('kv_store')?`export const compareAndSet=async(k,expected,value)=>{if(JSON.stringify(globalThis.__review.records.get(k))!==JSON.stringify(expected))return false;globalThis.__review.records.set(k,structuredClone(value));return true;};export const get=async k=>structuredClone(globalThis.__review.records.get(k)); export const set=async(k,v)=>globalThis.__review.records.set(k,structuredClone(v));export const del=async k=>globalThis.__review.records.delete(k);export const getByPrefix=async p=>[...globalThis.__review.records].filter(([k])=>k.startsWith(p)).map(([,v])=>structuredClone(v));`:a.path==='npm:hono'?`export class Hono {use(){} get(p,h){globalThis.__review.routes.set('GET '+p,h)} post(p,h){globalThis.__review.routes.set('POST '+p,h)}}`:a.path.includes('cors')?'export const cors=()=>()=>{};':a.path.includes('logger')?'export const logger=()=>()=>{};':'export default {setVapidDetails(){},sendNotification:async()=>{throw Error("No live sends allowed")}};'}));
 }};
 const output=await build({entryPoints:['supabase/functions/server/index.ts'],bundle:true,write:false,format:'esm',plugins:[stubs]});
 await import('data:text/javascript;base64,'+Buffer.from(output.outputFiles[0].text).toString('base64'));
@@ -20,6 +20,19 @@ let result=await call('/assessment',{phone,type:'baseline',answers,questionnaire
 assert.equal((await call('/assessment',{phone,type:'baseline',answers,questionnaireVersion})).status,409);
 result=await call('/modules/complete',{phone,engagement:{0:5000}});assert.equal(result.status,200);assert(result.body.progress.modulesCompletedAt);
 result=await call('/assessment',{phone,type:'endline',answers,questionnaireVersion});assert.equal(result.status,200);assert(result.body.progress.endlineCompletedAt);
-assert.equal((await call('/auth/recovery/request',{phone})).status,503);
+
 assert.equal((await call('/auth/recovery/reset',{phone,code:'123456',pin:'1234'})).status,400);
 console.log('PASS: isolated server flow checks—study-order rejection, baseline/endline persistence, duplicate prevention, timestamps and unconfigured/invalid recovery. No live accounts or SMS used.');
+
+const account={phone:'+2340000000001',pin:'1357',city:'Test',facility:'Test',participantCode:'TEST',lga:'Test',language:'en'};
+const registered=await call('/auth/register',account);assert.equal(registered.status,200);assert.match(registered.body.recoveryCode,/^[A-F0-9]{4}(-[A-F0-9]{4}){7}$/);
+assert(!JSON.stringify([...records.values()]).includes(registered.body.recoveryCode));
+const reset=await call('/auth/recovery/reset',{phone:account.phone,code:registered.body.recoveryCode.toLowerCase(),pin:'2468'});assert.equal(reset.status,200);assert.notEqual(reset.body.recoveryCode,registered.body.recoveryCode);
+assert.equal((await call('/auth/recovery/reset',{phone:account.phone,code:registered.body.recoveryCode,pin:'1111'})).status,400);
+assert.equal((await call('/auth/login',{phone:account.phone,pin:'1357'})).status,401);
+assert.equal((await call('/auth/login',{phone:account.phone,pin:'2468'})).status,200);
+assert(records.get(`user:${account.phone}:pin`).sessionsRevokedAt);
+const rotated=await call('/recovery/generate',{phone:account.phone,pin:'2468'});assert.equal(rotated.status,200);
+assert.equal((await call('/auth/recovery/reset',{phone:account.phone,code:reset.body.recoveryCode,pin:'9999'})).status,400);
+assert.equal((await call('/auth/recovery/reset',{phone:account.phone,code:rotated.body.recoveryCode,pin:'9999'})).status,200);
+console.log('PASS: hashed recovery codes, PIN reset, old-code rejection, old-PIN rejection, session revocation and authenticated code replacement.');

@@ -22,7 +22,7 @@ async function request(path: string, options: RequestInit = {}) {
   });
   const data = await res.json();
   if (!res.ok) {
-    if (res.status === 401 && !path.startsWith("/auth/")) { clearSession(); window.dispatchEvent(new Event("session-expired")); }
+    if (res.status === 401 && !path.startsWith("/auth/") && path !== "/recovery/generate") { clearSession(); window.dispatchEvent(new Event("session-expired")); }
     throw new Error(data.error || `Request failed with status ${res.status}`);
   }
   if (data.sessionToken) sessionToken = data.sessionToken;
@@ -158,4 +158,4 @@ export async function resetPin(phone:string,code:string,pin:string){return reque
 
 export async function disablePush(phone:string){return request('/push-subscription/disable',{method:'POST',body:JSON.stringify({phone})});}
 
-export async function requestPinRecovery(phone:string){return request('/auth/recovery/request',{method:'POST',body:JSON.stringify({phone})});}
+export async function generateRecoveryCode(phone:string,pin:string){return request('/recovery/generate',{method:'POST',body:JSON.stringify({phone,pin})});}

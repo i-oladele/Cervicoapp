@@ -85,3 +85,9 @@ export const getByPrefix = async (prefix: string): Promise<any[]> => {
   }
   return data?.map((d) => d.value) ?? [];
 };
+// Update a credential only if it is still the version the caller verified.
+export const compareAndSet = async (key: string, expected: any, value: any): Promise<boolean> => {
+ const {data,error}=await client().from('kv_store_bcdc6876').update({value}).eq('key',key).eq('value',JSON.stringify(expected)).select('key');
+ if(error)throw new Error(error.message);
+ return !!data?.length;
+};

@@ -3,7 +3,8 @@ import { toast } from "sonner";
 import { BackgroundLogo } from "./BackgroundLogo";
 import { useLanguage } from "./LanguageContext";
 import { useUser } from "./UserContext";
-import { registerUser, loginUser, resetPin, requestPinRecovery } from "./api";
+import { registerUser, loginUser, resetPin } from "./api";
+import { SaveRecoveryCode } from "./RecoveryCode";
 import { ChevronDown } from "lucide-react";
 import { screeningFacilities } from "../studyInfo";
 
@@ -12,6 +13,8 @@ const normalisePhone = (value: string) => value.replace(/\s/g, "").replace(/^0/,
 type AuthTab = "register" | "login";
 
 export function AuthScreen({ onAuth }: { onAuth: () => void }) {
+  const [issuedCode,setIssuedCode]=useState("");
+  const [afterSave,setAfterSave]=useState<"home"|"login">("home");
   const [recoveryCode,setRecoveryCode]=useState("");
   const [recovering,setRecovering]=useState(false);
   const [tab, setTab] = useState<AuthTab>("register");
@@ -110,6 +113,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
           endlineCompleted: false,
         });
         toast.success(t("auth.registerSuccess"));
+        setAfterSave("home");setIssuedCode(res.recoveryCode);return;
       } else {
         const cleanedPhone = normalisePhone(phone);
         const res = await loginUser(cleanedPhone, pinStr);
@@ -151,6 +155,8 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
   };
 
   const fontInstrument = { fontFamily: "'Instrument Sans', sans-serif" };
+
+  if(issuedCode) return <div className="size-full overflow-y-auto p-6 pt-14"><SaveRecoveryCode code={issuedCode} onDone={()=>{setIssuedCode("");if(afterSave==="home")onAuth();else{setPin(["","","",""]);setTab("login");}}}/></div>;
 
   return (
     <div className="bg-[#f8fafc] size-full relative flex flex-col overflow-hidden">
@@ -383,29 +389,13 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
             {recovering && (
               <div className="flex flex-col gap-[12px] bg-white rounded-[8px] border border-[#e5e5e5] p-[16px]" style={fontInstrument}>
                 <p className="text-[14px] text-[#333]">{t("auth.recoveryIntro")}</p>
-                <button
-                  type="button"
-                  disabled={loading}
-                  onClick={async () => {
-                    if (!isPhoneValid(phone)) { setPhoneTouched(true); setPhoneError(t("auth.phoneError")); return; }
-                    setLoading(true);
-                    try { await requestPinRecovery(normalisePhone(phone)); toast.success(t("auth.codeSent")); }
-                    catch (e: any) { toast.error(e.message || t("auth.genericError")); }
-                    finally { setLoading(false); }
-                  }}
-                  className="self-start px-[12px] py-[8px] rounded-[8px] border border-[#008080] bg-white text-[#008080] cursor-pointer"
-                  style={{ fontWeight: 600 }}
-                >
-                  {t("auth.sendCode")}
-                </button>
                 <label className="flex flex-col gap-[8px]">
                   <span className="text-[14px] text-[#333]">{t("auth.recoveryCode")}</span>
                   <input
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    maxLength={6}
+                    autoComplete="off"
+                    maxLength={48}
                     value={recoveryCode}
-                    onChange={(e) => setRecoveryCode(e.target.value.replace(/\D/g, ""))}
+                    onChange={(e) => setRecoveryCode(e.target.value.toUpperCase())}
                     className="w-full p-[12px] text-[16px] bg-white rounded-[8px] border border-[#c6c6c6] outline-none tracking-[4px]"
                   />
                 </label>
@@ -416,7 +406,8 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
                   onClick={async () => {
                     setLoading(true);
                     try {
-                      await resetPin(normalisePhone(phone), recoveryCode, pin.join(""));
+                      const result=await resetPin(normalisePhone(phone), recoveryCode, pin.join(""));
+                      setAfterSave("login");setIssuedCode(result.recoveryCode);
                       toast.success(t("auth.resetSuccess"));
                       setRecovering(false);
                       setRecoveryCode("");
