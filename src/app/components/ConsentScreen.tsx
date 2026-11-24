@@ -20,12 +20,12 @@ export function ConsentScreen({ onContinue }: { onContinue: () => void }) {
 
       <div className="flex-1 overflow-y-auto pt-[60px] pb-[24px] px-[24px] relative z-[1]">
         {/* Title */}
-        <p
+        <h1
           className="text-[28px] text-black text-left tracking-[-1.4px]"
           style={{ fontFamily: "'Instrument Sans', sans-serif", fontWeight: 600 }}
         >
           {t("consent.title")}
-        </p>
+        </h1>
 
         <button className="mt-4 p-3 border rounded" onClick={async()=>{const text=Array.from(document.querySelectorAll('[data-consent] p, [data-consent] li')).map(e=>e.textContent).join(' ');try{await narrate(text,language);}catch{toast.error(t('library.listenUnsupported'));}}}>{language==='yo'?'Gbọ́ àlàyé':'Listen to this information'}</button>
         {/* Content */}

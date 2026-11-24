@@ -13,6 +13,7 @@ import {
   MapPin, Microscope, ShieldAlert, ShieldCheck, Smile, Stethoscope, TrendingUp, Users, Volume2, Bug,
 } from "lucide-react";
 import { completeModules } from "./api";
+import { SlideIllustration } from "./SlideIllustration";
 import { librarySlides, type LibraryIcon } from "../libraryContent";
 import { screeningFacilities } from "../studyInfo";
 
@@ -87,13 +88,13 @@ export function LibraryScreen({ onNavigate }: LibraryScreenProps) {
       <div className="bg-[#f8fafc] size-full relative flex flex-col overflow-hidden">
         <BackgroundLogo />
         <div className="flex-1 flex flex-col justify-center gap-[16px] px-[24px] relative z-[1]" style={fontInstrument}>
-          <p className="text-[24px] text-[#008080] tracking-[-1px]" style={{ fontWeight: 600 }}>{t("library.title")}</p>
+          <h1 className="text-[24px] text-[#008080] tracking-[-1px]" style={{ fontWeight: 600 }}>{t("library.title")}</h1>
           <p className="text-[16px] text-[#333]">{t("library.lockedBaseline")}</p>
           <button
             onClick={() => onNavigate("assessment")}
             className="w-full bg-[#008080] p-[16px] rounded-[8px] border-none cursor-pointer"
           >
-            <span className="text-[18px] text-[#8ffc86]" style={{ fontWeight: 600 }}>{t("assessment.takeBaseline")}</span>
+            <span className="text-[20px] text-[#8ffc86]" style={{ fontWeight: 700 }}>{t("assessment.takeBaseline")}</span>
           </button>
         </div>
         <BottomNav active="library" onNavigate={onNavigate} />
@@ -106,9 +107,9 @@ export function LibraryScreen({ onNavigate }: LibraryScreenProps) {
       <BackgroundLogo />
 
       <div className="flex-1 overflow-y-auto pt-[60px] pb-[24px] relative z-[1]">
-        <p className="px-[24px] text-[28px] text-[#008080] tracking-[-1.4px]" style={{ ...fontInstrument, fontWeight: 600 }}>
+        <h1 className="px-[24px] text-[28px] text-[#008080] tracking-[-1.4px]" style={{ ...fontInstrument, fontWeight: 600 }}>
           {t("library.title")}
-        </p>
+        </h1>
 
         {/* Slide */}
         <section className="mx-[24px] mt-[16px] bg-white rounded-[12px] p-[16px] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.05)]" style={fontInstrument} aria-live="polite">
@@ -138,6 +139,9 @@ export function LibraryScreen({ onNavigate }: LibraryScreenProps) {
             </a>
           )}
 
+          {/* Slides without their own image get a simple illustration */}
+          {!slide.image && <SlideIllustration id={slide.id} language={language} />}
+
           <button
             onClick={listen}
             className="mt-[12px] inline-flex items-center gap-[6px] px-[12px] py-[8px] rounded-[8px] border border-[#008080] bg-white text-[#008080] cursor-pointer"
@@ -164,7 +168,7 @@ export function LibraryScreen({ onNavigate }: LibraryScreenProps) {
               onClick={() => onNavigate("screening")}
               className="w-full bg-[#008080] p-[16px] rounded-[8px] border-none cursor-pointer mt-[16px]"
             >
-              <span className="text-[18px] text-[#8ffc86] tracking-[-0.6px]" style={{ fontWeight: 600 }}>{t("library.book")}</span>
+              <span className="text-[20px] text-[#8ffc86] tracking-[-0.6px]" style={{ fontWeight: 700 }}>{t("library.book")}</span>
             </button>
           )}
 

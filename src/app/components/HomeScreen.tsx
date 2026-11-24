@@ -12,7 +12,12 @@ import { useLanguage } from "./LanguageContext";
 import { useUser } from "./UserContext";
 import { VideoCard } from "./VideoCard";
 import { NotificationCenter } from "./NotificationCenter";
-import { getScreeningData, updateScreeningCompletion } from "./api";
+import { getScreeningData, updateScreeningCompletion, clearSession } from "./api";
+import { LogOut } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "./ui/alert-dialog";
 import { toast } from "sonner";
 import { ScreeningCompletionModal } from "./ScreeningCompletionModal";
 import FigmaCheckCircleHome from "../../imports/CheckCircle-10-491";
@@ -21,11 +26,21 @@ const fontInstrument = { fontFamily: "'Instrument Sans', sans-serif" };
 
 interface HomeScreenProps {
   onNavigate: (tab: string) => void;
+  onLogout?: () => void;
 }
 
-export function HomeScreen({ onNavigate }: HomeScreenProps) {
+export function HomeScreen({ onNavigate, onLogout }: HomeScreenProps) {
   const { t } = useLanguage();
-  const { user, progress } = useUser();
+  const { user, progress, setUser, setProgress } = useUser();
+
+  const logOut = () => {
+    clearSession();
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
+    setUser(null);
+    setProgress({ baselineCompleted: false, modulesCompleted: false, endlineCompleted: false });
+    toast.success(t("home.loggedOut"));
+    onLogout?.();
+  };
   const [screeningData, setScreeningData] = useState<any>(null);
   const [hasCheckedScreening, setHasCheckedScreening] = useState<boolean | null>(null);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
@@ -89,12 +104,12 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
         {/* Welcome Header */}
         <div className="px-[24px] flex justify-between items-start">
           <div>
-            <p
+            <h1
               className="text-[28px] text-[#008080] tracking-[-1.4px]"
               style={{ ...fontInstrument, fontWeight: 600 }}
             >
               {t("home.welcome").replace(/,\s*$/, "")}
-            </p>
+            </h1>
             <p
               className="text-[24px] text-black tracking-[-1.2px] mt-[4px]"
               style={{ ...fontInstrument, fontWeight: 500 }}
@@ -102,7 +117,30 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
               {t("home.letsStart")}
             </p>
           </div>
-          <NotificationCenter />
+          <div className="flex items-start gap-[2px]">
+            <NotificationCenter />
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button
+                  type="button"
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors flex flex-col items-center gap-[2px] bg-transparent border-none cursor-pointer"
+                >
+                  <LogOut size={20} className="text-gray-600" aria-hidden="true" />
+                  <span className="text-[11px] text-gray-600 leading-none" style={fontInstrument}>{t("home.logout")}</span>
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent style={fontInstrument}>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t("home.logoutTitle")}</AlertDialogTitle>
+                  <AlertDialogDescription>{t("home.logoutBody")}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{t("home.cancel")}</AlertDialogCancel>
+                  <AlertDialogAction onClick={logOut} className="bg-[#008080] hover:bg-[#006b6b] text-white">{t("home.logout")}</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
 
         <RecoverySettings />
@@ -141,10 +179,14 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
             </div>
             {progress.baselineCompleted ? (
               <div className="w-[18px] h-[18px] shrink-0">
-                <FigmaCheckCircleHome />
+                <span aria-hidden="true" className="contents"><FigmaCheckCircleHome /></span>
+                <span className="sr-only">{t("library.completed")}</span>
               </div>
             ) : (
-              <Circle size={18} color="#008080" strokeWidth={1.5} />
+              <>
+                <Circle size={18} color="#008080" strokeWidth={1.5} aria-hidden="true" />
+                <span className="sr-only">{t("home.notDone")}</span>
+              </>
             )}
           </div>
 
@@ -160,10 +202,14 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
             </div>
             {progress.modulesCompleted ? (
               <div className="w-[18px] h-[18px] shrink-0">
-                <FigmaCheckCircleHome />
+                <span aria-hidden="true" className="contents"><FigmaCheckCircleHome /></span>
+                <span className="sr-only">{t("library.completed")}</span>
               </div>
             ) : (
-              <Circle size={18} color="#008080" strokeWidth={1.5} />
+              <>
+                <Circle size={18} color="#008080" strokeWidth={1.5} aria-hidden="true" />
+                <span className="sr-only">{t("home.notDone")}</span>
+              </>
             )}
           </div>
 
@@ -179,10 +225,14 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
             </div>
             {progress.endlineCompleted ? (
               <div className="w-[18px] h-[18px] shrink-0">
-                <FigmaCheckCircleHome />
+                <span aria-hidden="true" className="contents"><FigmaCheckCircleHome /></span>
+                <span className="sr-only">{t("library.completed")}</span>
               </div>
             ) : (
-              <Circle size={18} color="#008080" strokeWidth={1.5} />
+              <>
+                <Circle size={18} color="#008080" strokeWidth={1.5} aria-hidden="true" />
+                <span className="sr-only">{t("home.notDone")}</span>
+              </>
             )}
           </div>
         </div>
@@ -193,7 +243,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
             onClick={() => onNavigate("library")}
             className="w-full bg-[#008080] p-[16px] rounded-[8px] border-none cursor-pointer"
           >
-            <p className="text-[18px] text-center text-[#8ffc86] tracking-[-0.9px]" style={{ ...fontInstrument, fontWeight: 600 }}>
+            <p className="text-[20px] text-center text-[#8ffc86] tracking-[-0.9px]" style={{ ...fontInstrument, fontWeight: 700 }}>
               {t("home.continue")}
             </p>
           </button>
@@ -292,7 +342,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
               onClick={() => onNavigate("library")}
               className="w-full bg-[#008080] p-[16px] rounded-[8px] border-none cursor-pointer"
             >
-              <p className="text-[18px] text-center text-[#8ffc86] tracking-[-0.9px]" style={{ ...fontInstrument, fontWeight: 600 }}>
+              <p className="text-[20px] text-center text-[#8ffc86] tracking-[-0.9px]" style={{ ...fontInstrument, fontWeight: 700 }}>
                 {t("home.learnMore")}
               </p>
             </button>

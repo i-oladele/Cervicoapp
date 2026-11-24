@@ -10,3 +10,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 @media (prefers-reduced-motion: reduce) {
  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
+
+/* Darker toast text so pop-up messages meet WCAG AA contrast. */
+[data-sonner-toaster] {
+ --success-text: #146c36 !important;
+ --error-text: #b42318 !important;
+ --info-text: #1d4ed8 !important;
+ --warning-text: #8a4b00 !important;
+}

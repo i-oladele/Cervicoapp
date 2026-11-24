@@ -21,7 +21,7 @@ export function BottomNav({ active, onNavigate }: BottomNavProps) {
   const { t } = useLanguage();
 
   return (
-    <nav aria-label={t("nav.home")} className="shrink-0 bg-white flex items-center justify-between px-[24px] pt-[12px] shadow-[0px_-4px_16px_0px_rgba(0,0,0,0.08)]"
+    <nav aria-label={t("nav.menu")} className="shrink-0 bg-white flex items-center justify-between px-[24px] pt-[12px] shadow-[0px_-4px_16px_0px_rgba(0,0,0,0.08)]"
       style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom, 12px))' }}
     >
       {navItems.map((item) => {
@@ -70,7 +70,7 @@ export function BottomNav({ active, onNavigate }: BottomNavProps) {
               style={{
                 fontFamily: "'Instrument Sans', sans-serif",
                 fontWeight: isActive ? 600 : 400,
-                color: isActive ? "#008080" : "#a6a6a6",
+                color: isActive ? "#008080" : "#5f6368",
               }}
             >
               {t(item.labelKey)}

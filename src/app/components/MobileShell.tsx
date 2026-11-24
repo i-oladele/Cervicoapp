@@ -16,22 +16,22 @@ export function MobileShell({ children, className = "" }: { children: React.Reac
   if (isMobile) {
     // On real mobile devices: full-screen, no phone frame
     return (
-      <div className={`w-full h-dvh overflow-hidden ${className}`}>
+      <main className={`w-full h-dvh overflow-hidden ${className}`}>
         {children}
-      </div>
+      </main>
     );
   }
 
   // On desktop: show the decorative iPhone shell
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900">
-      <div
+      <main
         className={`relative w-[393px] overflow-hidden ${className}`}
         // Never taller than the browser window, so buttons stay reachable on laptops
         style={{ height: "min(852px, calc(100dvh - 32px))", borderRadius: "40px", boxShadow: "0 0 60px rgba(0,0,0,0.3)" }}
       >
         {children}
-      </div>
+      </main>
     </div>
   );
 }

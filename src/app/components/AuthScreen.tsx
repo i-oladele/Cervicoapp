@@ -12,12 +12,12 @@ const normalisePhone = (value: string) => value.replace(/\s/g, "").replace(/^0/,
 
 type AuthTab = "register" | "login";
 
-export function AuthScreen({ onAuth }: { onAuth: () => void }) {
+export function AuthScreen({ onAuth, initialTab = "register" }: { onAuth: () => void; initialTab?: AuthTab }) {
   const [issuedCode,setIssuedCode]=useState("");
   const [afterSave,setAfterSave]=useState<"home"|"login">("home");
   const [recoveryCode,setRecoveryCode]=useState("");
   const [recovering,setRecovering]=useState(false);
-  const [tab, setTab] = useState<AuthTab>("register");
+  const [tab, setTab] = useState<AuthTab>(initialTab);
   const [phone, setPhone] = useState("");
   const [facility,setFacility]=useState("");
   const [participantCode,setParticipantCode]=useState("");
@@ -156,17 +156,19 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
 
   const fontInstrument = { fontFamily: "'Instrument Sans', sans-serif" };
 
-  if(issuedCode) return <div className="size-full overflow-y-auto p-6 pt-14"><SaveRecoveryCode code={issuedCode} onDone={()=>{setIssuedCode("");if(afterSave==="home")onAuth();else{setPin(["","","",""]);setTab("login");}}}/></div>;
+  if(issuedCode) return <div className="size-full overflow-y-auto p-6 pt-14"><SaveRecoveryCode headingLevel={1} code={issuedCode} onDone={()=>{setIssuedCode("");if(afterSave==="home")onAuth();else{setPin(["","","",""]);setTab("login");}}}/></div>;
 
   return (
     <div className="bg-[#f8fafc] size-full relative flex flex-col overflow-hidden">
       <BackgroundLogo />
 
+      <h1 className="sr-only">{tab === "register" ? t("auth.register") : t("auth.login")}</h1>
       {/* Tabs - fixed at top */}
       <div className="shrink-0 pt-[120px] pb-[16px] flex justify-center relative z-[1]">
         <div className="flex items-center">
           <button type="button"
             onClick={() => setTab("register")}
+            aria-pressed={tab === "register"}
             className="flex items-center justify-center px-[10px] py-[8px] w-[108px] bg-transparent border-none cursor-pointer relative"
           >
             {tab === "register" && (
@@ -183,6 +185,7 @@ export function AuthScreen({ onAuth }: { onAuth: () => void }) {
           </button>
           <button type="button"
             onClick={() => setTab("login")}
+            aria-pressed={tab === "login"}
             className="flex items-center justify-center px-[10px] py-[8px] w-[108px] bg-transparent border-none cursor-pointer relative"
           >
             {tab === "login" && (

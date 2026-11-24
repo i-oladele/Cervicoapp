@@ -72,8 +72,8 @@ export const librarySlides: LibrarySlide[] = [
     icon: "risk",
     heading: { en: "Who is at higher risk?", yo: "Ta ló wà nínú ewu jù?" },
     body: {
-      en: "Any woman who has ever had sex can get cervical cancer. The risk is higher with:\n• Starting sex at a young age\n• Many sexual partners (yours or your partner’s)\n• Smoking\n• HIV or a weakened immune system\n• Never having been screened",
-      yo: "Obìnrin èyíkéyìí tó ti ní ìbálòpọ̀ rí lè ní jẹjẹrẹ ọrùn ilé-ọmọ. Ewu náà pọ̀ jù fún:\n• Bíbẹ̀rẹ̀ ìbálòpọ̀ ní kékeré\n• Níní ọ̀pọ̀ alábàálòpọ̀ (ìwọ tàbí ọkọ rẹ)\n• Sìgá mímu\n• HIV tàbí agbára ìdáàbòbò ara tó rẹ̀wẹ̀sì\n• Àìṣe àyẹ̀wò rí",
+      en: "Any woman who has ever had sex can get cervical cancer. The risk is higher with:\n• Starting sex at a young age\n• Many sexual partners (yours or your partner’s)\n• Smoking\n• HIV or a weakened immune system\n• Taking the contraceptive pill for many years (this is not a reason to stop family planning; talk to a health worker)\n• Never having been screened",
+      yo: "Obìnrin èyíkéyìí tó ti ní ìbálòpọ̀ rí lè ní jẹjẹrẹ ọrùn ilé-ọmọ. Ewu náà pọ̀ jù fún:\n• Bíbẹ̀rẹ̀ ìbálòpọ̀ ní kékeré\n• Níní ọ̀pọ̀ alábàálòpọ̀ (ìwọ tàbí ọkọ rẹ)\n• Sìgá mímu\n• HIV tàbí agbára ìdáàbòbò ara tó rẹ̀wẹ̀sì\n• Lílo oògùn ìdènà oyún fún ọ̀pọ̀ ọdún (èyí kì í ṣe ìdí láti dá ìfètò-sọ́mọbíbí dúró; bá òṣìṣẹ́ ìlera sọ̀rọ̀)\n• Àìṣe àyẹ̀wò rí",
     },
   },
   {

@@ -128,6 +128,12 @@ export const translations: Record<Language, Record<string, string>> = {
     "home.screeningNotYet": "You can change your screening date at any time.",
     "home.changeDate": "Change date",
     "home.reminders": "Reminders",
+    "home.logout": "Log out",
+    "home.notDone": "Not done yet",
+    "home.logoutTitle": "Log out?",
+    "home.logoutBody": "Your progress is saved. You will need your phone number and PIN to log back in.",
+    "home.cancel": "Cancel",
+    "home.loggedOut": "You have logged out.",
 
     // Library
     "library.title": "What You Should Know About Cervical Cancer",
@@ -155,7 +161,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "library.faq2.q": "What causes cervical cancer?",
     "library.faq2.a": "Nearly all cervical cancers are caused by the human papillomavirus (HPV), a very common sexually transmitted infection. While most HPV infections clear on their own, persistent infection with high-risk HPV types (especially HPV 16 and 18) can lead to cervical cancer over time.",
     "library.faq3.q": "Who is at risk of cervical cancer?",
-    "library.faq3.a": "All women who have been sexually active are at risk. Other risk factors include early sexual activity, multiple sexual partners, smoking, a weakened immune system, long-term use of oral contraceptives, and not being screened regularly.",
+    "library.faq3.a": "All women who have been sexually active are at risk. Other risk factors include early sexual activity, multiple sexual partners, smoking, a weakened immune system, long-term use of oral contraceptives (not a reason to stop family planning), and not being screened regularly.",
     "library.faq4.q": "What are the symptoms of cervical cancer?",
     "library.faq4.a": "Early-stage cervical cancer often has no symptoms. As it progresses, symptoms may include abnormal vaginal bleeding (between periods, after intercourse, or after menopause), unusual vaginal discharge, pelvic pain, and pain during intercourse.",
     "library.faq5.q": "How can cervical cancer be prevented?",
@@ -202,6 +208,14 @@ export const translations: Record<Language, Record<string, string>> = {
     "push.disabled": "Push notifications turned off",
     "push.denied": "Permission for notifications was refused",
     "push.failed": "Could not turn on push notifications",
+    "push.test": "Send a test reminder",
+    "push.testTitle": "CerviHealthCo test reminder",
+    "push.testBody": "Reminders are working on this phone.",
+    "push.testSent": "Test reminder sent. It should appear on this phone within a minute.",
+    "push.testFailed": "Could not send the test reminder. Turn reminders off and on again, then retry.",
+    "push.blocked": "Notifications are blocked for this app. Allow them in your phone’s settings, then come back and turn reminders on.",
+    "push.iosTitle": "Reminders on iPhone",
+    "push.iosSteps": "On iPhone, reminders only work after you add this app to your Home Screen:\n1. Tap the Share button (the square with an arrow).\n2. Tap “Add to Home Screen”.\n3. Open CerviHealthCo from your Home Screen and turn reminders on.",
 
     // Screening completion
     "completion.title": "Screening completion",
@@ -237,6 +251,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Bottom Nav
     "nav.home": "Home",
+    "nav.menu": "Main menu",
     "nav.library": "Library",
     "nav.screening": "Screening",
     "nav.assessment": "Assessment",
@@ -354,6 +369,12 @@ export const translations: Record<Language, Record<string, string>> = {
     "home.screeningNotYet": "O lè yí ọjọ́ àyẹ̀wò rẹ padà nígbàkúgbà.",
     "home.changeDate": "Yí ọjọ́ padà",
     "home.reminders": "Ìránnilétí",
+    "home.logout": "Jáde",
+    "home.notDone": "Kò tíì parí",
+    "home.logoutTitle": "Ṣé o fẹ́ jáde?",
+    "home.logoutBody": "A ti fi ìlọsíwájú rẹ pamọ́. Ìwọ yóò nílò nọ́mbà fóònù àti pínì rẹ láti wọlé padà.",
+    "home.cancel": "Fagilé",
+    "home.loggedOut": "O ti jáde.",
 
     // Library
     "library.title": "Ohun Tí O Yẹ Kí O Mọ̀ Nípa Àrùn Jẹjẹrẹ Ọrùn Ilé-ọmọ",
@@ -381,7 +402,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "library.faq2.q": "Kí ló ń fa àrùn jẹjẹrẹ ọrùn ilé-ọmọ?",
     "library.faq2.a": "Ó fẹ́rẹ̀ẹ́ jẹ́ gbogbo àrùn jẹjẹrẹ ọrùn ilé-ọmọ ni kòkòrò HPV ló ń fa. Bí kòkòrò HPV ewu-gíga (ní pàtàkì HPV 16 àti 18) bá wà nínú ara fún ìgbà pípẹ́, ó lè yọrí sí àrùn jẹjẹrẹ.",
     "library.faq3.q": "Ta ló wà nínú ewu àrùn jẹjẹrẹ ọrùn ilé-ọmọ?",
-    "library.faq3.a": "Gbogbo obìnrin tí ó ti ní ìbálòpọ̀ ni ó wà nínú ewu. Àwọn ohun mìíràn tí ó lè mú ewu pọ̀ sí ni bíbẹ̀rẹ̀ ìbálòpọ̀ ní ọjọ́ orí kékeré, ọ̀pọ̀ àwọn alábàápín ìbálòpọ̀, síga mímu, ìlera tí kò lágbára, àti àìṣe àyẹ̀wò déédéé.",
+    "library.faq3.a": "Gbogbo obìnrin tí ó ti ní ìbálòpọ̀ ni ó wà nínú ewu. Àwọn ohun mìíràn tí ó lè mú ewu pọ̀ sí ni bíbẹ̀rẹ̀ ìbálòpọ̀ ní ọjọ́ orí kékeré, ọ̀pọ̀ àwọn alábàápín ìbálòpọ̀, síga mímu, ìlera tí kò lágbára, lílo oògùn ìdènà oyún fún ìgbà pípẹ́ (kì í ṣe ìdí láti dá ìfètò-sọ́mọbíbí dúró), àti àìṣe àyẹ̀wò déédéé.",
     "library.faq4.q": "Kí ni àwọn àmì àrùn jẹjẹrẹ ọrùn ilé-ọmọ?",
     "library.faq4.a": "Ní ìpele àkọ́kọ́, àrùn jẹjẹrẹ ọrùn ilé-ọmọ kò sábà ní àmì kankan. Bí ó bá ń tẹ̀síwájú, àwọn àmì lè pẹ̀lú ẹ̀jẹ̀ tí kìí ṣe dédé láti inú abẹ́, ìdà tí kò wọ́pọ̀, ìrora ẹ̀gbẹ́ ìbàdí, àti ìrora nígbà ìbálòpọ̀.",
     "library.faq5.q": "Báwo ni a ṣe lè dènà àrùn jẹjẹrẹ ọrùn ilé-ọmọ?",
@@ -428,6 +449,14 @@ export const translations: Record<Language, Record<string, string>> = {
     "push.disabled": "A ti pa ìfitónilétí",
     "push.denied": "A kò gba àṣẹ fún ìfitónilétí",
     "push.failed": "A kò lè tan ìfitónilétí",
+    "push.test": "Fi ìránnilétí ìdánwò ránṣẹ́",
+    "push.testTitle": "Ìránnilétí ìdánwò CerviHealthCo",
+    "push.testBody": "Ìránnilétí ń ṣiṣẹ́ lórí fóònù yìí.",
+    "push.testSent": "A ti fi ìránnilétí ìdánwò ránṣẹ́. Ó yẹ kí ó hàn lórí fóònù yìí láàárín ìṣẹ́jú kan.",
+    "push.testFailed": "A kò lè fi ìránnilétí ìdánwò ránṣẹ́. Pa ìránnilétí, tún tàn án, kí o sì gbìyànjú lẹ́ẹ̀kan sí i.",
+    "push.blocked": "A ti dí ìfitónilétí fún àpù yìí. Gbà á láàyè nínú ètò fóònù rẹ, lẹ́yìn náà padà wá kí o tan ìránnilétí.",
+    "push.iosTitle": "Ìránnilétí lórí iPhone",
+    "push.iosSteps": "Lórí iPhone, ìránnilétí máa ń ṣiṣẹ́ nìkan lẹ́yìn tí o bá fi àpù yìí sí Home Screen rẹ:\n1. Tẹ bọ́tìnnì Share (àpótí tí ọfà ń jáde nínú rẹ̀).\n2. Tẹ “Add to Home Screen”.\n3. Ṣí CerviHealthCo láti Home Screen rẹ, kí o sì tan ìránnilétí.",
 
     // Screening completion
     "completion.title": "Ìparí àyẹ̀wò",
@@ -463,6 +492,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Bottom Nav
     "nav.home": "Ilé",
+    "nav.menu": "Àkójọ àṣàyàn",
     "nav.library": "Ibi Ìwé",
     "nav.screening": "Àyẹ̀wò",
     "nav.assessment": "Ìdánwò",
@@ -479,6 +509,8 @@ translations.en['library.listenUnsupported']='A voice for this language is unava
 translations.yo['library.listenUnsupported']='Ohùn fún èdè yìí kò sí lórí ẹ̀rọ yìí. O lè ka ọ̀rọ̀ náà tàbí ṣí ohùn tó bá èdè náà mu nínú ètò ẹ̀rọ rẹ.';
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState<Language>("en");
+  // Screen readers pick their voice and pronunciation from <html lang>.
+  useEffect(() => { document.documentElement.lang = language; }, [language]);
   useEffect(()=>{document.documentElement.lang=language;},[language]);
 
   const t = (key: string): string => {

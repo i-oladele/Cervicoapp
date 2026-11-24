@@ -12,20 +12,20 @@ export function WelcomeScreen({ onGetStarted }: { onGetStarted: () => void }) {
 
       <div className="flex-1 overflow-y-auto relative z-[1]">
         {/* Welcome header */}
-        <div className="pt-[clamp(32px,7dvh,73px)] px-[24px] flex flex-wrap items-baseline gap-x-[4px]">
-          <p
+        <h1 className="pt-[clamp(32px,7dvh,73px)] px-[24px] flex flex-wrap items-baseline gap-x-[4px]">
+          <span
             className="text-[28px] text-black tracking-[-1.6px]"
             style={{ fontFamily: "'Instrument Sans', sans-serif", fontWeight: 600 }}
           >
             {t("welcome.to")}
-          </p>
-          <p
+          </span>
+          <span
             className="text-[32px] text-[#008080]"
             style={{ fontFamily: "'Alatsi', sans-serif" }}
           >
             {t("welcome.brand")}
-          </p>
-        </div>
+          </span>
+        </h1>
 
         {/* 3D Girl Illustration */}
         <div className="flex justify-center mt-[16px]">

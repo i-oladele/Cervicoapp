@@ -17,8 +17,10 @@ type Screen = "splash" | "welcome" | "consent" | "auth" | "home" | "library" | "
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>("splash");
+  // After logging out or a session timeout, open the Log In tab rather than Register.
+  const [authTab, setAuthTab] = useState<"register" | "login">("register");
 
-  useEffect(()=>{const expire=()=>setScreen("auth");window.addEventListener("session-expired",expire);return ()=>window.removeEventListener("session-expired",expire);},[]);
+  useEffect(()=>{const expire=()=>{setAuthTab("login");setScreen("auth");};window.addEventListener("session-expired",expire);return ()=>window.removeEventListener("session-expired",expire);},[]);
 
   // Auto-advance from splash after 3 seconds
   useEffect(() => {
@@ -41,9 +43,9 @@ export default function App() {
       case "consent":
         return <ConsentScreen onContinue={() => setScreen("auth")} />;
       case "auth":
-        return <AuthScreen onAuth={() => setScreen("home")} />;
+        return <AuthScreen key={authTab} initialTab={authTab} onAuth={() => setScreen("home")} />;
       case "home":
-        return <HomeScreen onNavigate={handleNavigate} />;
+        return <HomeScreen onNavigate={handleNavigate} onLogout={() => { setAuthTab("login"); setScreen("auth"); }} />;
       case "library":
         return <LibraryScreen onNavigate={handleNavigate} />;
       case "screening":

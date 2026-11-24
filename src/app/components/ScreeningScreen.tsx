@@ -97,12 +97,12 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
 
       <div className="flex-1 overflow-y-auto pt-[60px] pb-[24px] relative z-[1]">
         {/* Title */}
-        <p
+        <h1
           className="px-[24px] text-[28px] text-[#008080] tracking-[-1.4px]"
           style={{ ...fontInstrument, fontWeight: 600 }}
         >
           {t("screening.title")}
-        </p>
+        </h1>
 
         <div className="px-[24px] mt-[32px] flex flex-col gap-[24px]">
           {/* Age: only asked when the baseline questionnaire has not already recorded it */}
@@ -175,7 +175,7 @@ export function ScreeningScreen({ onNavigate }: ScreeningScreenProps) {
             disabled={saving}
             className="w-full bg-[#008080] p-[16px] rounded-[8px] border-none cursor-pointer mt-[8px]"
           >
-            <p className="text-[18px] text-center text-[#8ffc86] tracking-[-0.9px]" style={{ ...fontInstrument, fontWeight: 600 }}>
+            <p className="text-[20px] text-center text-[#8ffc86] tracking-[-0.9px]" style={{ ...fontInstrument, fontWeight: 700 }}>
               {saving ? t("screening.saving") : t("screening.save")}
             </p>
           </button>

@@ -4,10 +4,11 @@ import { useUser } from './UserContext';
 import { generateRecoveryCode } from './api';
 import { toast } from 'sonner';
 
-export function SaveRecoveryCode({code,onDone}:{code:string;onDone:()=>void}) {
+export function SaveRecoveryCode({code,onDone,headingLevel=2}:{code:string;onDone:()=>void;headingLevel?:1|2}) {
+ const Heading=headingLevel===1?'h1':'h2';
  const {language}=useLanguage();const yo=language==='yo';const [saved,setSaved]=useState(false);
  return <section className="p-6 bg-white rounded-lg flex flex-col gap-4" aria-labelledby="recovery-heading">
- <h2 id="recovery-heading" className="text-xl font-semibold">{yo?'Fi kóòdù ìmúpadàbọ̀ rẹ pamọ́':'Save your private recovery code'}</h2>
+ <Heading id="recovery-heading" className="text-xl font-semibold">{yo?'Fi kóòdù ìmúpadàbọ̀ rẹ pamọ́':'Save your private recovery code'}</Heading>
  <p>{yo?'Kọ kóòdù yìí sí ibi ààbò. Má ṣe pín in. O lè lò ó láti tún PIN rẹ ṣe bí o bá gbàgbé rẹ.':'Write this code down and keep it somewhere safe. Do not share it. Use it to reset a forgotten PIN.'}</p>
  <code className="block break-all select-all p-4 bg-gray-100 text-lg">{code}</code>
  <p>{yo?'A fi kóòdù yìí hàn níbí lẹ́ẹ̀kan ṣoṣo. Kóòdù tuntun yìí rọ́pò ti tẹ́lẹ̀.':'This code is shown here only once. It replaces any previous recovery code.'}</p>

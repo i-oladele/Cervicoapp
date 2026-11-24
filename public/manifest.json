@@ -11,7 +11,7 @@
   "lang": "en",
   "categories": ["health", "medical", "education"],
   "icons": [
-    {"src": "/web-app-manifest-96x96.png", "sizes": "96x96", "type": "image/png"},
+    {"src": "/favicon-96x96.png", "sizes": "96x96", "type": "image/png"},
     {"src": "/web-app-manifest-192x192.png", "sizes": "192x192", "type": "image/png"},
     {"src": "/web-app-manifest-512x512.png", "sizes": "512x512", "type": "image/png"}
   ],
@@ -21,14 +21,14 @@
       "short_name": "Screening",
       "description": "Schedule your cervical cancer screening appointment",
       "url": "/screening",
-      "icons": [{"src": "/web-app-manifest-96x96.png", "sizes": "96x96"}]
+      "icons": [{"src": "/favicon-96x96.png", "sizes": "96x96"}]
     },
     {
       "name": "Educational Content",
       "short_name": "Library",
       "description": "Learn about cervical cancer prevention",
       "url": "/library",
-      "icons": [{"src": "/web-app-manifest-96x96.png", "sizes": "96x96"}]
+      "icons": [{"src": "/favicon-96x96.png", "sizes": "96x96"}]
     }
   ]
 }
