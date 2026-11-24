@@ -1,3 +1,4 @@
+import { publicPushKey } from "../pushConfig";
 import { savePushSubscription, disablePush } from "./api";
 import { useEffect } from "react";
 import { useUser } from "./UserContext";
@@ -67,7 +68,7 @@ export class PushNotificationManager {
     try {
       // In production, you'd get these from your push service (Firebase, OneSignal, etc.)
       const applicationServerKey = this.urlBase64ToUint8Array(
-        import.meta.env.VITE_VAPID_PUBLIC_KEY || ""
+        import.meta.env.VITE_VAPID_PUBLIC_KEY || publicPushKey
       );
 
       this.subscription = await this.swRegistration.pushManager.subscribe({

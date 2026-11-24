@@ -1,0 +1,6 @@
+project_id = "Cervicoapp"
+
+[functions.make-server-bcdc6876]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/server/index.ts"

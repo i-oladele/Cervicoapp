@@ -48,7 +48,7 @@ async function issueSession(phone: string) {
 }
 app.use('/make-server-bcdc6876/*',async(c,next)=>{
  const path=c.req.path;
- if(path.endsWith('/reminders/run')) {const secret=Deno.env.get('REMINDER_CRON_SECRET');if(!secret||c.req.header('Authorization')!==`Bearer ${secret}`)return c.json({error:'Access denied'},403);return next();}
+ if(path.endsWith('/reminders/run')) {const secret=Deno.env.get('REMINDER_CRON_SECRET');if(!secret||c.req.header('X-Cron-Secret')!==secret)return c.json({error:'Access denied'},403);return next();}
  if(c.req.method==='OPTIONS'||path.endsWith('/health')||path.includes('/auth/')) return next();
  if(path.includes('/admin/')) return c.json({error:'Research exports require a separately configured administrator service'},403);
  const token=c.req.header('X-Session-Token');
