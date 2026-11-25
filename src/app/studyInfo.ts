@@ -7,11 +7,11 @@ export const studyInfo = {
   researcherName: "Oyedero Lolade Comfort",
   institution: "University of Ibadan",
   // Shown on the consent screen as the contact for questions and withdrawal.
-  researcherPhone: "",
-  researcherEmail: "",
-  // e.g. committee: "Osun State Ministry of Health Research Ethics Committee"
+  researcherPhone: "+234 803 371 1510",
+  researcherEmail: "loladeoyedero@gmail.com",
+  // Full committee name, if the researcher wants it shown alongside the number.
   ethicsCommittee: "",
-  ethicsApprovalNumber: "",
+  ethicsApprovalNumber: "OSHREC/PRS/2026/842/01/360",
 };
 
 // Screening sites for the intervention group. `details` holds the verified
