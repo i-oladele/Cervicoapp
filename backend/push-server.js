@@ -12,16 +12,20 @@ const PORT = 3001;
 app.use(cors());
 app.use(express.json());
 
-// VAPID Keys (replace with your actual keys)
-const vapidKeys = {
-  publicKey: 'BHQZEGALEQuASAzX6HMfnO7nvZAs545ePgt1mh2tGYpSptvdH7WTYYTiLXUpH9svd4NrECGx30JiTkss75t5EZU',
-  privateKey: 'YFFBAWB7hcFlcCiFGKssg6a6ngTbv4HZTxLnZSw1Ux8'
-};
+// VAPID keys come from the environment and must never be committed.
+// Generate a pair with `npx web-push generate-vapid-keys`, then copy
+// .env.example to .env and run `node --env-file=.env push-server.js`.
+const { VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT } = process.env;
+
+if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+  console.error('Missing VAPID_PUBLIC_KEY or VAPID_PRIVATE_KEY. See backend/.env.example.');
+  process.exit(1);
+}
 
 webpush.setVapidDetails(
-  'mailto:your-email@example.com',
-  vapidKeys.publicKey,
-  vapidKeys.privateKey
+  VAPID_SUBJECT || 'mailto:your-email@example.com',
+  VAPID_PUBLIC_KEY,
+  VAPID_PRIVATE_KEY
 );
 
 // In-memory storage (in production, use a real database)

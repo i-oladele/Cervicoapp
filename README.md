@@ -52,3 +52,5 @@ The dev server picks up `localhost+2.pem` and `localhost+2-key.pem` automaticall
 3. Schedule a daily `POST` to the function's `/reminders/run` route at 09:00 Africa/Lagos, using the secret bearer token.
 
 See `docs/release-status.txt` for the current release notes.
+
+`backend/` holds an earlier Express push server, kept for local testing and replaced in production by the Supabase function. It reads its VAPID keys from environment variables (see `backend/.env.example`).
