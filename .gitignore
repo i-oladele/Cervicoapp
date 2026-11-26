@@ -6,3 +6,9 @@ node_modules/
 .DS_Store
 
 docs/proposal-corrections-draft.docx
+
+# Local HTTPS certificates (generate with mkcert; never commit)
+*.pem
+
+# Supabase CLI cache
+supabase/.temp/
